@@ -10,8 +10,13 @@ cmake_minimum_required( VERSION 3.13 )
 ###########################################################
 message("### Build project.cpp.binary ###")
 set(PROJECT_BINARY_VERSION "1.0.0")
-project(project_cpp_binary LANGUAGES CXX VERSION ${PROJECT_BINARY_VERSION} DESCRIPTION "A simple C++ application.")
 
+# define binary/library names
+set(PROJECT_TARGET_BINARY project_cpp_binary)
+
+project(${PROJECT_TARGET_BINARY} LANGUAGES CXX VERSION ${PROJECT_BINARY_VERSION} DESCRIPTION "A simple C++ application.")
+
+# print architecture
 message (STATUS "System=${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION} ${CMAKE_SYSTEM_PROCESSOR}")
 
 ###########################################################
@@ -19,8 +24,12 @@ message (STATUS "System=${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION} ${CMAKE_SYS
 # This section is to tell CMake which compiler and compiler version you wish to build your project with. If you don’t set anything, it will pick the best fit on its own.
 ###########################################################
 message(STATUS "### Flags ###")
+# set c++ standard
+set(CMAKE_CXX_STANDARD 17)
 message(STATUS "CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall" )
+# -std=c++17 = enables/limits build to the C++17 standard.
+# -Wall = enables all the warnings about constructions that some users consider questionable
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall" )
 message(STATUS "CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}")
 
 ###########################################################
@@ -44,18 +53,18 @@ message(STATUS "PROJECT_CPP_BINARY_HEADERS=${PROJECT_CPP_BINARY_HEADERS}")
 ###########################################################
 message(STATUS "### Target ###")
 # defines our binary with all linked source files.
-add_executable(project_cpp_binary ${PROJECT_CPP_BINARY_HEADERS} ${PROJECT_CPP_BINARY_SOURCES} )
+add_executable(${PROJECT_TARGET_BINARY} ${PROJECT_CPP_BINARY_HEADERS} ${PROJECT_CPP_BINARY_SOURCES} )
 # set version number
-set_target_properties(project_cpp_binary PROPERTIES VERSION ${PROJECT_BINARY_VERSION})
+set_target_properties(${PROJECT_TARGET_BINARY} PROPERTIES VERSION ${PROJECT_BINARY_VERSION})
 # set language
-set_target_properties(project_cpp_binary PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(${PROJECT_TARGET_BINARY} PROPERTIES LINKER_LANGUAGE CXX)
 
 ###########################################################
 # include
 # This command is used to specify the path of the include directories that you want the compiler to look into while searching for header files while compiling your code. This will also include the header files from 3rd party libraries as we have done for Randomize and Logger.
 ###########################################################
 # include of this project
-target_include_directories(project_cpp_binary PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
+target_include_directories(${PROJECT_TARGET_BINARY} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 ###########################################################
 # external libs
@@ -67,4 +76,4 @@ target_include_directories(project_cpp_binary PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 # The TARGETS form specifies rules for installing targets from a project. There are several kinds of target files that may be installed:
 ###########################################################
 message(STATUS "### Install ###")
-install(TARGETS project_cpp_binary RUNTIME DESTINATION bin)
+install(TARGETS ${PROJECT_TARGET_BINARY} RUNTIME DESTINATION bin)

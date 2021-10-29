@@ -23,5 +23,12 @@
         "command": "${workspaceFolder}/build.sh"
       }
     },
+    {
+      "label": "CMake Test (Linux)",
+      "type": "shell",
+      "linux": {
+        "command": "${workspaceFolder}/test.sh",
+      },
+    }
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [{
+      "label": "Example 1 - CMake Windows Debug",
+      "type": "shell",
+      "command": "cmd",
+      "args": ["/c", "${workspaceFolder}/example-1/build.bat", "Debug"],
+    },
+    {
+      "label": "Example 1 - CMake Windows Release",
+      "type": "shell",
+      "command": "cmd",
+      "args": ["/c", "${workspaceFolder}/example-1/build.bat"],
+    },
+    {
+      "label": "Example 1 - CMake Linux Debug",
+      "type": "shell",
+      "command": "${workspaceFolder}/example-1/build.sh",
+      "args": ["Debug"],
+    },
+    {
+      "label": "Example 1 - CMake Linux Release",
+      "type": "shell",
+      "command": "${workspaceFolder}/example-1/build.sh"
+    }
+  ]
+}

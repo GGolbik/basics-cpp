@@ -1,27 +1,57 @@
 {
   "version": "2.0.0",
   "tasks": [{
-      "label": "Example 1 - CMake Windows Debug",
+      "label": "Example 1 - CMake Debug",
       "type": "shell",
-      "command": "cmd",
-      "args": ["/c", "${workspaceFolder}/example-1/build.bat", "Debug"],
+      "windows": {
+        "command": "cmd",
+        "args": ["/c", "${workspaceFolder}/example-1/build.bat", "Debug"]
+      },
+      "linux":{
+        "command": "${workspaceFolder}/example-1/build.sh",
+        "args": ["Debug"],  
+      }
     },
     {
-      "label": "Example 1 - CMake Windows Release",
+      "label": "Example 1 - CMake Release",
       "type": "shell",
-      "command": "cmd",
-      "args": ["/c", "${workspaceFolder}/example-1/build.bat"],
+      "windows":{
+        "command": "cmd",
+        "args": ["/c", "${workspaceFolder}/example-1/build.bat"],
+      },
+      "linux":{
+        "command": "${workspaceFolder}/example-1/build.sh"
+      }
     },
     {
-      "label": "Example 1 - CMake Linux Debug",
+      "label": "Example 2 - CMake Debug",
       "type": "shell",
-      "command": "${workspaceFolder}/example-1/build.sh",
-      "args": ["Debug"],
+      "windows": {
+        "command": "cmd",
+        "args": ["/c", "${workspaceFolder}/example-2/build.bat", "Debug"]
+      },
+      "linux":{
+        "command": "${workspaceFolder}/example-2/build.sh",
+        "args": ["Debug"],  
+      }
     },
     {
-      "label": "Example 1 - CMake Linux Release",
+      "label": "Example 2 - CMake Release",
       "type": "shell",
-      "command": "${workspaceFolder}/example-1/build.sh"
+      "windows":{
+        "command": "cmd",
+        "args": ["/c", "${workspaceFolder}/example-2/build.bat"],
+      },
+      "linux":{
+        "command": "${workspaceFolder}/example-2/build.sh"
+      }
+    },
+    {
+      "label": "Example 2 - CMake Test (Linux)",
+      "type": "shell",
+      "linux": {
+        "command": "${workspaceFolder}/example-2/test.sh",
+      },
     }
   ]
 }

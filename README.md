@@ -4,6 +4,8 @@
   - A simple template to build a C++ project.
 - [Example 2](example-2/README.md)
   - A simple template to build a C++ project, run tests and get code coverage report.
+- [Example 3](example-3/README.md)
+  - A simple template to build a C++ project, run tests with GoogleTest Framework and get code coverage report.
 
 # Table of Contents
 

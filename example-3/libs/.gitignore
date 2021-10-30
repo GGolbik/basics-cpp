@@ -1,0 +1,8 @@
+# Ignore everything
+*
+
+# But not these files...
+!/.gitignore
+!/CMakeLists.txt
+!/gtest2html
+!/gtest2html/*

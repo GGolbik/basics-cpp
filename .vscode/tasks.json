@@ -52,6 +52,36 @@
       "linux": {
         "command": "${workspaceFolder}/example-2/test.sh",
       },
+    },
+    {
+      "label": "Example 3 - CMake Debug",
+      "type": "shell",
+      "windows": {
+        "command": "cmd",
+        "args": ["/c", "${workspaceFolder}/example-3/build.bat", "Debug"]
+      },
+      "linux":{
+        "command": "${workspaceFolder}/example-3/build.sh",
+        "args": ["Debug"],  
+      }
+    },
+    {
+      "label": "Example 3 - CMake Release",
+      "type": "shell",
+      "windows":{
+        "command": "cmd",
+        "args": ["/c", "${workspaceFolder}/example-3/build.bat"],
+      },
+      "linux":{
+        "command": "${workspaceFolder}/example-3/build.sh"
+      }
+    },
+    {
+      "label": "Example 3 - CMake Test (Linux)",
+      "type": "shell",
+      "linux": {
+        "command": "${workspaceFolder}/example-3/test.sh",
+      },
     }
   ]
 }

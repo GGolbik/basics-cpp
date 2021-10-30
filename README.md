@@ -113,7 +113,7 @@ There is NO WARRANTY, to the extent permitted by law.
 
 # C++17 Standard
 
-Standard `C++17` is the informal name for `ISO/IEC 9899:2018` 
+Standard `C++17` is the informal name for `ISO/IEC 14882:2017` 
 
 # Project Directory Structure
 

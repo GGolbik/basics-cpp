@@ -6,8 +6,10 @@ using namespace ggolbik::cpp::library;
 
 int main(int argc, char **argv)
 {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+  // The ::testing::InitGoogleTest() function parses the command line for googletest flags, and removes all recognized flags. This allows the user to control a test program’s behavior via various flags,
+  ::testing::InitGoogleTest(&argc, argv);
+  // RUN_ALL_TESTS() runs all tests
+  return RUN_ALL_TESTS();
 }
 
 // Demonstrate some basic assertions.

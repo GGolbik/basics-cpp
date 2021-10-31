@@ -7,6 +7,7 @@
 * [Build Project](#build-project)
 * [Install Project](#install-project)
 * [Test Project](#test-project)
+* [Build, Install and Test with Docker](#build-install-and-test-with-docker)
 
 # lcov
 
@@ -30,8 +31,10 @@ The dependencies can be downloaded by executing the `libs.sh` script on Linux. T
 
 int main(int argc, char **argv)
 {
-    ::testing::InitGoogleTest(&argc, argv);
-    return RUN_ALL_TESTS();
+  // The ::testing::InitGoogleTest() function parses the command line for googletest flags, and removes all recognized flags. This allows the user to control a test program’s behavior via various flags,
+  ::testing::InitGoogleTest(&argc, argv);
+  // RUN_ALL_TESTS() runs all tests
+  return RUN_ALL_TESTS();
 }
 ~~~
 
@@ -74,7 +77,7 @@ target_link_libraries(${PROJECT_TARGET_TEST} PUBLIC ${PROJECT_TARGET_LIBRARY_TES
 
 link the googletest library of the application to test
 ~~~
-target_link_libraries(${PROJECT_TARGET_TEST} PUBLIC gtest gtest_main)
+target_link_libraries(${PROJECT_TARGET_TEST} PUBLIC gtest_main)
 ~~~
 
 Set flags for coverage (`--coverage` command line argument is a shortcut for `-fprofile-arcs` and `-ftest-coverage`)
@@ -108,15 +111,15 @@ genhtml ./test/coverage.info --output-directory ./test/coverage.html
 
 # Build Project
 
-Execute the `build.bat` on Windows or `build.sh` on Linux.
+Execute the `build.bat` script on Windows or `build.sh` script on Linux.
 
 # Install Project
 
-Execute the `build.sh` on Linux. There is no support for Windows yet.
+Execute the `build.sh` script on Linux. There is no support for Windows yet.
 
 # Test Project
 
-Execute the `test.sh` on Linux. There is no support for Windows yet.
+Execute the `test.sh` script on Linux. There is no support for Windows yet.
 
 The code coverage output can be found in the build directory `build/coverage.html/index.html`.
 
@@ -133,3 +136,12 @@ sudo apt install xsltproc
 ~~~
 xsltproc libs/gtest2html/gtest2html.xslt build/test/testreport.xml > build/test/testreport.html
 ~~~
+
+You can use the alternative [gtest2html generator](https://gitlab.uni-koblenz.de/agrt/gtest2html).
+~~~
+python3 libs/gtest2html/gtest2html.py build/test/testreport.xml build/test/index.html
+~~~
+
+# Build, Install and Test with Docker
+
+Execute the `docker.sh` script on Linux. There is no support for Windows yet.

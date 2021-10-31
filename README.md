@@ -12,8 +12,10 @@
 * [IDE](#ide)
 * [Windows Setup](#windows-setup)
 * [Linux Setup](#linux-setup)
+* [Docker Setup](#docker-setup)
 * [C++17 Standard](#c17-standard)
 * [Project Directory Structure](#project-directory-structure)
+* [GoogleTest](#googletest)
 
 # IDE
 
@@ -111,6 +113,10 @@ This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 ~~~
 
+# Docker Setup
+
+The project provides docker scripts to build the projects. Read [Get Docker](https://docs.docker.com/get-docker/) for Docker installation instructions.
+
 # C++17 Standard
 
 Standard `C++17` is the informal name for `ISO/IEC 14882:2017` 
@@ -134,3 +140,89 @@ The project structure:
       - `CMakeLists.txt` - This file is basically a configuration file that tells CMake what to do.
   - `tests` - As the name suggests, code for unit testing is kept in this directory.
     - `CMakeLists.txt` - This file is basically a configuration file that tells CMake what to do.
+
+# GoogleTest
+
+The assertions come in pairs that test the same thing but have different effects on the current function.
+`ASSERT_*` versions generate fatal failures when they fail, and abort the current function.
+`EXPECT_*` versions generate nonfatal failures, which don’t abort the current function.
+Usually `EXPECT_*` are preferred, as they allow more than one failure to be reported in a test.
+However, you should use `ASSERT_*` if it doesn’t make sense to continue when the assertion in question fails.
+
+## Simple Tests
+
+~~~
+#include <gtest/gtest.h>
+
+TEST(TestSuiteName, TestName) {
+  ... test body ...
+}
+~~~
+
+Visit [Assertions Reference](https://google.github.io/googletest/reference/assertions.html) for possible macros.
+- Explicit Success and Failure
+  - SUCCEED()
+  - FAIL()
+  - ADD_FAILURE()
+  - ADD_FAILURE_AT(file_path,line_number)
+- Generalized Assertion
+  - EXPECT_THAT(value,matcher)
+- Boolean Conditions
+  - EXPECT_TRUE(condition)
+  - EXPECT_FALSE(condition)
+- Binary Comparison
+  - EXPECT_EQ(val1,val2)
+  - EXPECT_NE(val1,val2)
+  - EXPECT_LT(val1,val2)
+  - EXPECT_LE(val1,val2)
+  - EXPECT_GT(val1,val2)
+  - EXPECT_GE(val1,val2)
+- String Comparison
+  - EXPECT_STREQ(str1,str2)
+  - EXPECT_STRNE(str1,str2)
+  - EXPECT_STRCASEEQ(str1,str2)
+  - EXPECT_STRCASENE(str1,str2)
+- Floating-Point Comparison
+  - EXPECT_FLOAT_EQ(val1,val2)
+  - EXPECT_DOUBLE_EQ(val1,val2)
+  - EXPECT_NEAR(val1,val2,abs_error)
+- Exception Assertions
+  - EXPECT_THROW(statement,exception_type)
+  - EXPECT_ANY_THROW(statement)
+  - EXPECT_NO_THROW(statement)
+
+## Test Fixtures
+
+For each test defined with `TEST_F()`, googletest will create a fresh test fixture at runtime, immediately initialize it via `SetUp(`), run the test, clean up by calling `TearDown()`, and then delete the test fixture.
+Note that different tests in the same test suite have different test fixture objects, and googletest always deletes a test fixture before it creates the next one.
+googletest does not reuse the same test fixture for multiple tests.
+Any changes one test makes to the fixture do not affect other tests.
+
+First, define a fixture class.
+By convention, you should give it the name `FooTest` where `Foo` is the class being tested.
+~~~
+class FooTest : public ::testing::Test {
+protected:
+  void SetUp() override {
+    // initialize test class
+    q1_.Enqueue(1);
+    q2_.Enqueue(2);
+    q2_.Enqueue(3);
+  }
+
+  void TearDown() override {
+    // cleans up after the test finishes.
+  }
+
+  Queue<int> q0_;
+  Queue<int> q1_;
+  Queue<int> q2_;
+};
+~~~
+
+Write tests using `TEST_F()` and this fixture.
+~~~
+TEST_F(FooTest, IsEmptyInitially) {
+  EXPECT_EQ(q0_.size(), 0);
+}
+~~~

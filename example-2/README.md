@@ -7,6 +7,7 @@
 * [Build Project](#build-project)
 * [Install Project](#install-project)
 * [Test Project](#test-project)
+* [Build and Install with Docker](#build-and-install-with-docker)
 
 # lcov
 
@@ -76,14 +77,18 @@ genhtml ./test/coverage.info --output-directory ./test/coverage.html
 
 # Build Project
 
-Execute the `build.bat` on Windows or `build.sh` on Linux.
+Execute the `build.bat` script on Windows or `build.sh` script on Linux.
 
 # Install Project
 
-Execute the `build.sh` on Linux. There is no support for Windows yet.
+Execute the `build.sh` script on Linux. There is no support for Windows yet.
 
 # Test Project
 
-Execute the `test.sh` on Linux. There is no support for Windows yet.
+Execute the `test.sh` script on Linux. There is no support for Windows yet.
 
 The code coverage output can be found in the build directory `build/coverage.html/index.html`.
+
+# Build and Install with Docker
+
+Execute the `docker.sh` script on Linux. There is no support for Windows yet.

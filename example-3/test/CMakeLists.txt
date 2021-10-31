@@ -38,7 +38,7 @@ set_target_properties(${PROJECT_TARGET_TEST} PROPERTIES COMPILE_FLAGS  "-fprofil
 # external libs
 # This part is what we call linking in compilation terms. So what you have done is you have included the header files of these 3rd party libraries and now you need to tell the compiler where exactly are these libraries located.
 ###########################################################
-target_link_libraries(${PROJECT_TARGET_TEST} PUBLIC ${PROJECT_TARGET_LIBRARY_TEST} gtest gtest_main)
+target_link_libraries(${PROJECT_TARGET_TEST} PUBLIC ${PROJECT_TARGET_LIBRARY_TEST} gtest_main)
 
 
 

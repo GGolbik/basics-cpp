@@ -2,26 +2,14 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-IMAGE_NAME=ggolbik/cpp-build
+IMAGE_BUILD_SCRIPT=${SCRIPT_DIR}/../docker-cpp-build/docker.sh
+IMAGE_NAME=ggolbik/cpp-build:1.0
 BUILD_DIR="${SCRIPT_DIR}/build"
 
-# Create docker build container
-if [[ "$(docker images -q ${IMAGE_NAME} 2> /dev/null)" == "" ]]; then
-  docker build \
-    --tag ${IMAGE_NAME} \
-    --build-arg LABEL_CREATED=$(date -u +'%Y-%m-%dT%H:%M:%SZ') \
-    ${SCRIPT_DIR}/../
-
-  # Check for install error
-  EXIT_CODE=$?
-  if [[ ${EXIT_CODE} -eq 0 ]]; then
-    echo "Docker build was successful"
-  else
-    echo "Docker build failed with ERROR: ${EXIT_CODE}"
-    exit ${EXIT_CODE}
-  fi
-else
-  echo "Docker image ${IMAGE_NAME} already exists."
+/bin/bash ${IMAGE_BUILD_SCRIPT}
+EXIT_CODE=$?
+if [[ ${EXIT_CODE} -ne 0 ]]; then
+  exit ${EXIT_CODE}
 fi
 
 CONTAINER_ID=$(docker run --interactive --tty --detach ${IMAGE_NAME})
@@ -45,8 +33,14 @@ docker exec \
   --tty \
   ${CONTAINER_ID} bash /app/install.sh
 
+docker exec \
+  --interactive \
+  --tty \
+  ${CONTAINER_ID} bash /app/test.sh
+
 docker cp ${CONTAINER_ID}:/app/build/. ${BUILD_DIR}
 
 docker stop ${CONTAINER_ID}
 
+echo "Remove container:"
 docker rm ${CONTAINER_ID}

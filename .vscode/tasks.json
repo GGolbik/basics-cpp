@@ -82,6 +82,52 @@
       "linux": {
         "command": "${workspaceFolder}/example-3/test.sh",
       },
-    }
+    },
+    {
+      "label": "Example 4 - CMake Debug",
+      "type": "shell",
+      "windows": {
+        "command": "cmd",
+        "args": ["/c", "${workspaceFolder}/example-4/build.bat", "Debug"]
+      },
+      "linux":{
+        "command": "${workspaceFolder}/example-4/build.sh",
+        "args": ["Debug"],  
+      }
+    },
+    {
+      "label": "Example 4 - CMake Release",
+      "type": "shell",
+      "windows":{
+        "command": "cmd",
+        "args": ["/c", "${workspaceFolder}/example-4/build.bat"],
+      },
+      "linux":{
+        "command": "${workspaceFolder}/example-4/build.sh"
+      }
+    },
+    {
+      "label": "Example 5 - CMake Debug",
+      "type": "shell",
+      "windows": {
+        "command": "cmd",
+        "args": ["/c", "${workspaceFolder}/example-5/build.bat", "Debug"]
+      },
+      "linux":{
+        "command": "${workspaceFolder}/example-5/build.sh",
+        "args": ["Debug"],  
+      }
+    },
+    {
+      "label": "Example 5 - CMake Release",
+      "type": "shell",
+      "windows":{
+        "command": "cmd",
+        "args": ["/c", "${workspaceFolder}/example-5/build.bat"],
+      },
+      "linux":{
+        "command": "${workspaceFolder}/example-5/build.sh"
+      }
+    },
   ]
 }

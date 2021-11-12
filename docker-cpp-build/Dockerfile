@@ -12,6 +12,8 @@ FROM debian:buster AS env
 # "Git" is a distributed version-control system for tracking changes in source code during software development. It is used to access source code of dependencies.
 #
 # "Cppcheck" is an analysis tool for C/C++ code.
+#
+# "crossbuild-essential-<arch>"" and "mingw-w64" allows to build for a different architecture.
 RUN /bin/bash -c set -o pipefail \
   && apt-get update \
   && apt-get install -y \
@@ -19,7 +21,12 @@ RUN /bin/bash -c set -o pipefail \
   cmake \
   lcov \
   git \
-  cppcheck
+  cppcheck \
+  crossbuild-essential-amd64 \
+  crossbuild-essential-armel \
+  crossbuild-essential-armhf \
+  crossbuild-essential-arm64 \
+  mingw-w64
 
 # Define arguments used in this dockerfile
 ARG LABEL_CREATED

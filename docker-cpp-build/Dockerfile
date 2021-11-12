@@ -1,9 +1,6 @@
 # Use Debian 10 (Buster) as build container - https://hub.docker.com/_/debian
 FROM debian:buster AS env
 
-# Define arguments used in this dockerfile
-ARG LABEL_CREATED
-
 # Install the required tools
 #
 # The "build-essential" package is a reference for all the packages needed to compile a Debian package, e.g. g++, gcc and make.
@@ -13,13 +10,19 @@ ARG LABEL_CREATED
 # "LCOV" is a graphical front-end for GCC's coverage testing tool gcov.
 #
 # "Git" is a distributed version-control system for tracking changes in source code during software development. It is used to access source code of dependencies.
+#
+# "Cppcheck" is an analysis tool for C/C++ code.
 RUN /bin/bash -c set -o pipefail \
   && apt-get update \
   && apt-get install -y \
   build-essential \
   cmake \
   lcov \
-  git
+  git \
+  cppcheck
+
+# Define arguments used in this dockerfile
+ARG LABEL_CREATED
 
 # Set labels - OCI Image Format https://www.opencontainers.org/
 LABEL \

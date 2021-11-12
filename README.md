@@ -6,16 +6,32 @@
   - A simple template to build a C++ project, run tests and get code coverage report.
 - [Example 3](example-3/README.md)
   - A simple template to build a C++ project, run tests with GoogleTest Framework and get code coverage report.
+- [Example 4](example-4/README.md)
+  - A simple template to build a C++ project and run Cppcheck.
+- [Example 5](example-5/README.md)
+  - A simple template to build a C++ project and run SonarQube.
 
-# Table of Contents
+# Table of contents
 
 * [IDE](#ide)
+  * [VSCode](#vscode)
 * [Windows Setup](#windows-setup)
+  * [CMake](#cmake)
+  * [MinGW-w64](#mingw-w64)
 * [Linux Setup](#linux-setup)
+  * [CMake](#cmake-1)
+  * [GNU-C++-Compiler](#gnu-c-compiler)
 * [Docker Setup](#docker-setup)
 * [C++17 Standard](#c17-standard)
 * [Project Directory Structure](#project-directory-structure)
 * [GoogleTest](#googletest)
+  * [Simple Tests](#simple-tests)
+  * [Test Fixtures](#test-fixtures)
+* [Cppcheck ](#cppcheck)
+* [SonarQube](#sonarqube)
+  * [Startup](#startup)
+  * [Configuration - Add Project](#configuration---add-project)
+  * [Configuration - Quality Profiles](#configuration---quality-profiles)
 
 # IDE
 
@@ -226,3 +242,88 @@ TEST_F(FooTest, IsEmptyInitially) {
   EXPECT_EQ(q0_.size(), 0);
 }
 ~~~
+
+# Cppcheck 
+
+Install Cppcheck with
+~~~
+sudo apt install cppcheck
+~~~
+
+# SonarQube
+
+You can start a new instance of SonarQube with the [docker script](docker-sonarqube/docker.sh).
+
+The SonarQube server already contains the [C++ plugin](https://github.com/SonarOpenCommunity/sonar-cxx) which is compatible to the [SonarQube version](https://github.com/SonarOpenCommunity/sonar-cxx/wiki/Compatibility-Matrix).
+
+## Startup
+
+Once your instance is up and running, Log in to http://localhost:9000 using System Administrator credentials:
+- user: `admin`
+- password: `admin`
+
+![](images/1-sonarqube-login.png)
+
+Change the admin password:
+
+![](images/2-sonarqube-change-password.png)
+
+Accept the risk of external plugins:
+
+![](images/3-sonarqube-plugin-accept.png)
+
+Navigate to `Administration -> Marketplace` and make sure that the plugins `C++ (Community)` is installed.
+
+Additional configuration can be done under `Administration -> Configuration -> General Settings` within the `C++ (Community)` areas.
+
+## Configuration - Add Project
+
+Create a new project.
+
+![](images/4-sonarqube-add-project.png)
+
+Select `Manually`:
+
+![](images/5-sonarqube-add-project-manual.png)
+
+Set key and name:
+
+![](images/6-sonarqube-add-project-create.png)
+
+Create a token for the sonar scanner:
+
+![](images/7-sonarqube-token.png)
+
+Copy the token and pass it on to the `sonarqube.sh` script. See `example-5`.
+
+![](images/8-sonarqube-token.png)
+
+## Configuration - Quality Profiles
+
+You need to enable for which kinds of problems both plugins should scan. This needs to be done initially, as otherwise they will not detect anything by default.
+
+Go to `Quality Profiles`, click on the downwards arrow next to the `Sonar way (Built-in)` profile within the `CXX` area. Click `Copy`. Give it a catchy name, like `Sonar way - CXX`
+
+
+![](images/9-sonarqube-profile.png)
+
+A new quality profile pops up, you see the Rules (Bugs, Vulnerabilities, Code Smells) in the left table. You can click `Activate more rules`.
+
+![](images/11-sonarqube-activate.png)
+
+In the next table, you see the rules sorted by the same types.
+You can click all three types on the left side and mark them this way - if you want and then click on `Bulk Change` and `Activate In "Sonar way - CXX"` to activate all rules within our newly created Quality Profile.
+You have to acknowledge the change and SonarQube will report back as soon as the changes are done.
+
+![](images/12-sonarqube-activate-rules.png)
+
+Save the changes:
+
+![](images/13-sonarqube-activate-save.png)
+
+You can now navigate back to Quality Profiles, click on the downwards arrow next to the `Sonar way - CXX` profile within the `C++ (Community)` area and click on `Set as Default`.
+With this change, your newly created profile will now be used for the next scans.
+
+You can also select the profile for each project in the project settings.
+
+![](images/10-sonarqube-change-profile.png)

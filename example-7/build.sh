@@ -4,7 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 # "Debug" or empty for release build
 BUILD_TYPE=$1
-BUILD_DIR="${SCRIPT_DIR}/build"
+BUILD_DIR="${SCRIPT_DIR}/build/default"
 SRC_DIR=${SCRIPT_DIR}
 TOOLCHAIN_CMAKE=$(which cmake)
 

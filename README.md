@@ -10,6 +10,8 @@
   - A simple template to build a C++ project and run Cppcheck.
 - [Example 5](example-5/README.md)
   - A simple template to build a C++ project and run SonarQube.
+- [Example 7](example-7/README.md)
+  - A simple template to build a C++ project with cross toolchain.
 
 # Table of contents
 
@@ -32,6 +34,7 @@
   * [Startup](#startup)
   * [Configuration - Add Project](#configuration---add-project)
   * [Configuration - Quality Profiles](#configuration---quality-profiles)
+* [Cross Toolchain](#cross-toolchain)
 
 # IDE
 
@@ -327,3 +330,29 @@ With this change, your newly created profile will now be used for the next scans
 You can also select the profile for each project in the project settings.
 
 ![](images/10-sonarqube-change-profile.png)
+
+# Cross Toolchain
+
+Install `amd64` toolchain:
+~~~
+sudo apt install crossbuild-essential-amd64
+~~~
+
+Install `armel` toolchain:
+~~~
+sudo apt install crossbuild-essential-armel
+~~~
+
+Install `armhf` toolchain:
+~~~
+sudo apt install crossbuild-essential-armhf
+~~~
+
+Install `arm64` toolchain:
+~~~
+sudo apt install crossbuild-essential-arm64
+~~~
+
+Install `mingw-w64` Windows 32-Bit and 64-Bit toolchain:
+sudo apt install mingw-w64
+~~~

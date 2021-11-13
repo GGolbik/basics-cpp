@@ -14,6 +14,8 @@ FROM debian:buster AS env
 # "Cppcheck" is an analysis tool for C/C++ code.
 #
 # "crossbuild-essential-<arch>"" and "mingw-w64" allows to build for a different architecture.
+#
+# "openssl" and "libssl-dev" provide SSL/TLS usage.
 RUN /bin/bash -c set -o pipefail \
   && apt-get update \
   && apt-get install -y \
@@ -26,7 +28,9 @@ RUN /bin/bash -c set -o pipefail \
   crossbuild-essential-armel \
   crossbuild-essential-armhf \
   crossbuild-essential-arm64 \
-  mingw-w64
+  mingw-w64 \
+  openssl \
+  libssl-dev
 
 # Define arguments used in this dockerfile
 ARG LABEL_CREATED

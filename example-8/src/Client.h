@@ -5,9 +5,13 @@
 #include <string>
 #include <thread>
 
+#ifndef _WIN32
+#include "OpenSslWrapper.h"
+#endif
+
 namespace ggolbik {
 namespace cpp {
-namespace socket {
+namespace tls {
 
 class Client {
  private:  // type definitions
@@ -82,8 +86,22 @@ class Client {
   bool enabled;
   std::string serverAddress;
   unsigned short port;
+
+ public: // TLS methods
+  int tryReadStringTls(std::string &message);
+  // blocks until data is available
+  bool readStringTls(std::string &message);
+  bool writeTls(const byte data[], size_t length);
+
+ private:  // TLS fields
+  std::string keyFileName;
+  std::string certFileName;
+#ifndef _WIN32
+  OpenSslWrapper::TlsContextPtr tlsContextPtr;
+  OpenSslWrapper::TlsPtr tlsPtr;
+#endif
 };
 
-}  // namespace socket
+}  // namespace tls
 }  // namespace cpp
 }  // namespace ggolbik

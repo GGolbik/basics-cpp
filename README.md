@@ -14,6 +14,8 @@
   - A simple C++ project which uses sockets.
 - [Example 7](example-7/README.md)
   - A simple template to build a C++ project with cross toolchain.
+- [Example 8](example-8/README.md)
+  - A simple C++ project which uses sockets with TLS (OpenSSL).
 
 # Table of contents
 
@@ -37,7 +39,7 @@
   * [Configuration - Add Project](#configuration---add-project)
   * [Configuration - Quality Profiles](#configuration---quality-profiles)
 * [Cross Toolchain](#cross-toolchain)
-
+* [OpenSSL](#openssl)
 # IDE
 
 ## VSCode
@@ -45,6 +47,8 @@
 Install [VSCode](https://code.visualstudio.com/) as well as the extension [C/C++ extension for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools) and configure the IDE:
 - [Configuration for Windows](https://code.visualstudio.com/docs/cpp/config-mingw)
 - [Configuration for Linux](https://code.visualstudio.com/docs/cpp/config-linux)
+- The C++ style is set in `Settings > Extenions > C/C++ > C_Cpp: Clang_format_fallback Style` to `Google`.
+- The C++ standard is set in `Settings > Extenions > C/C++ > C_Cpp › Default: Cpp Standard` to `c++17`.
 
 # Windows Setup
 
@@ -356,5 +360,12 @@ sudo apt install crossbuild-essential-arm64
 ~~~
 
 Install `mingw-w64` Windows 32-Bit and 64-Bit toolchain:
+~~~
 sudo apt install mingw-w64
+~~~
+
+# OpenSSL
+
+~~~
+sudo apt-get install openssl libssl-dev
 ~~~

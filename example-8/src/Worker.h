@@ -8,11 +8,14 @@
 
 #ifdef _WIN32
 #include <winsock2.h>
+#else
+#include <openssl/ssl.h>
+#include "OpenSslWrapper.h"
 #endif
 
 namespace ggolbik {
 namespace cpp {
-namespace socket {
+namespace tls {
 
 /**
  *
@@ -32,7 +35,7 @@ class Worker {
 #ifdef _WIN32
   Worker(SOCKET socket);
 #else
-  Worker(int socket);
+  Worker(int socket, ::SSL* ssl);
 #endif
   /**
    * Move constructor
@@ -79,8 +82,17 @@ class Worker {
   std::atomic_bool enabled;
   std::atomic_bool running;
   std::thread workerThread;
+
+public: // TLS methods
+  bool readStringTls(std::string &message);
+  bool writeTls(const byte data[], size_t length);
+
+private: // TLS fields
+  #ifndef _WIN32
+  OpenSslWrapper::TlsPtr tlsPtr;
+  #endif
 };
 
-}  // namespace socket
+}  // namespace tls
 }  // namespace cpp
 }  // namespace ggolbik

@@ -49,12 +49,12 @@ Afterwards the client reads the input from server.
 
 *Note: There is no implementation for Windows yet.*
 ~~~
-socket client host=127.0.0.1 port=5044
+project_cpp_binary client host=127.0.0.1 port=5044
 ~~~
 
 ~~~
 Input Arguments:
-        0: ./example-6/build/project_cpp_binary
+        0: ./build/project_cpp_binary
         1: client
 Host: 127.0.0.1
 Port: 5044
@@ -75,7 +75,7 @@ Response: Hello World!
 ## Server Example
 
 ~~~
-socket server host=127.0.0.1 port=5044
+project_cpp_binary server host=127.0.0.1 port=5044
 ~~~
 
 ~~~

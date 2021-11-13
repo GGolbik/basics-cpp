@@ -14,7 +14,7 @@ set(PROJECT_BINARY_VERSION "1.0.0")
 # define binary/library names
 set(PROJECT_TARGET_BINARY project_cpp_binary)
 
-project(${PROJECT_TARGET_BINARY} LANGUAGES CXX VERSION ${PROJECT_BINARY_VERSION} DESCRIPTION "A simple C++ socket application.")
+project(${PROJECT_TARGET_BINARY} LANGUAGES CXX VERSION ${PROJECT_BINARY_VERSION} DESCRIPTION "A simple C++ application.")
 
 # print architecture
 message (STATUS "System=${CMAKE_SYSTEM_NAME} ${CMAKE_SYSTEM_VERSION} ${CMAKE_SYSTEM_PROCESSOR}")
@@ -74,6 +74,10 @@ if (WIN32)
   # set stuff for windows
   target_link_libraries(${PROJECT_TARGET_BINARY} ws2_32)
 endif()
+
+# https://cmake.org/cmake/help/latest/module/FindOpenSSL.html
+find_package(OpenSSL REQUIRED)
+target_link_libraries(${PROJECT_TARGET_BINARY} OpenSSL::SSL)
 
 ###########################################################
 # install

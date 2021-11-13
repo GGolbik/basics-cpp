@@ -203,6 +203,60 @@
         "ignoreFailures": true
       }],
       "preLaunchTask": "Example 7 - CMake Debug"
-    }
+    },
+    {
+      "name": "Example 8 - Debug - Server",
+      "type": "cppdbg",
+      "request": "launch",
+      "windows": {
+        "program": "${workspaceFolder}/example-8/build/project_cpp_binary.exe",
+        "miDebuggerPath": "C:/Program Files/mingw-w64/x86_64-8.1.0-posix-seh-rt_v6-rev0/mingw64/bin/gdb.exe",
+      },
+      "linux": {
+        "program": "${workspaceFolder}/example-8/build/project_cpp_binary",
+        "miDebuggerPath": "gdb",
+      },
+      "args": [
+        "server"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [{
+        "description": "Enable pretty-printing for gdb",
+        "text": "-enable-pretty-printing",
+        "ignoreFailures": true
+      }],
+      "preLaunchTask": "Example 8 - CMake Debug"
+    },
+    {
+      "name": "Example 8 - Debug - Client",
+      "type": "cppdbg",
+      "request": "launch",
+      "windows": {
+        "program": "${workspaceFolder}/example-8/build/project_cpp_binary.exe",
+        "miDebuggerPath": "C:/Program Files/mingw-w64/x86_64-8.1.0-posix-seh-rt_v6-rev0/mingw64/bin/gdb.exe",
+      },
+      "linux": {
+        "program": "${workspaceFolder}/example-8/build/project_cpp_binary",
+        "miDebuggerPath": "gdb",
+      },
+      "args": [
+        "client"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [{
+        "description": "Enable pretty-printing for gdb",
+        "text": "-enable-pretty-printing",
+        "ignoreFailures": true
+      }],
+      "preLaunchTask": "Example 8 - CMake Debug"
+    },
   ]
 }

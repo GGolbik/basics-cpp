@@ -6,6 +6,7 @@
 #include <fcntl.h>       // ::fcntl(...)
 #include <netdb.h>       // ::gethostbyname(...) ; hostent
 #include <netinet/in.h>  // sockaddr_in
+#include <openssl/ssl.h>
 #include <sys/socket.h>  // ::socket(...) ; SOCK_STREAM ; AF_INET ; connect(...)
 #include <unistd.h>      // ::close(int), ::read(int, void*, size_t), write(...)
 
@@ -17,7 +18,7 @@
 
 namespace ggolbik {
 namespace cpp {
-namespace socket {
+namespace tls {
 
 Client::Client(std::string serverAddress, unsigned short port)
     : enabled{false}, serverAddress{serverAddress}, port{port} {}
@@ -329,6 +330,15 @@ bool Client::open() {
 
   this->enabled = true;
 
+  // create TLS context
+  this->tlsContextPtr =
+      OpenSslWrapper::TlsContextPtr(OpenSslWrapper::createTlsContextClient());
+  if (!tlsContextPtr) {
+    std::cerr << "Failed to create TLS context." << std::endl;
+    this->enabled = false;
+    return false;
+  }
+
   // create a socket address
   sockaddr_in address;
   if (!createSocketAddress(this->serverAddress, this->port, address)) {
@@ -368,7 +378,19 @@ bool Client::open() {
     return false;
   }
 
+  // check TLS
+  this->tlsPtr = OpenSslWrapper::TlsPtr(
+      OpenSslWrapper::connectTls(this->tlsContextPtr.get(), clientSocket));
+  if (!this->tlsPtr) {
+    std::cerr << "Failed to establish TLS connection." << std::endl;
+    printError();
+    this->closeSocket();
+    this->enabled = false;
+    return false;
+  }
+
   // connection established
+  OpenSslWrapper::displayCerts(this->tlsPtr.get());
 
   return true;
 }
@@ -404,10 +426,11 @@ bool Client::closeSocket() {
   return true;
 }
 
-/**
- * ssize_t write(int fd, const void *buf, size_t count);
- */
 bool Client::write(const byte data[], size_t length) {
+  if (this->tlsPtr) {
+    return this->writeTls(data, length);
+  }
+
   if (length == 0) {
     return true;
   }
@@ -452,7 +475,55 @@ bool Client::write(const byte data[], size_t length) {
   return false;
 }
 
+/**
+ * ssize_t write(int fd, const void *buf, size_t count);
+ */
+bool Client::writeTls(const byte data[], size_t length) {
+  if (length == 0) {
+    return true;
+  }
+
+  size_t position = 0;
+  int remaining = length;
+
+  int rc;
+  try {
+    while (this->enabled && remaining > 0) {
+      rc = ::SSL_write(this->tlsPtr.get(), data + (sizeof(byte) * position),
+                       remaining);
+      if (rc <= 0) {
+        // failed to read data
+        int error = ::SSL_get_error(this->tlsPtr.get(), rc);
+        if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
+          if (this->enabled) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          }
+          continue;
+        } else {
+          // an error occurred
+          printError();
+          std::cerr << "Failed to write" << std::endl;
+          break;
+        }
+      }
+
+      remaining -= rc;
+      position += rc;
+    }
+
+    if (remaining == 0) {
+      return true;
+    }
+  } catch (...) {
+  }
+
+  return false;
+}
+
 bool Client::readString(std::string &message) {
+  if (this->tlsPtr) {
+    return this->readStringTls(message);
+  }
   int result = -1;
   do {
     result = this->tryReadString(message);
@@ -466,6 +537,9 @@ bool Client::readString(std::string &message) {
 }
 
 int Client::tryReadString(std::string &message) {
+  if (this->tlsPtr) {
+    return this->tryReadStringTls(message);
+  }
   byte recvbuf[Client::MAX_BUFFER_SIZE];
 
   message = "";
@@ -493,7 +567,45 @@ int Client::tryReadString(std::string &message) {
   return false;
 }
 
-}  // namespace socket
+bool Client::readStringTls(std::string &message) {
+  int result = -1;
+  do {
+    result = this->tryReadStringTls(message);
+    if (result > 0) {
+      return true;
+    } else if (result == 0) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+  } while (this->enabled && result == 0);
+  return false;
+}
+
+int Client::tryReadStringTls(std::string &message) {
+  byte recvbuf[Client::MAX_BUFFER_SIZE];
+
+  message = "";
+
+  int rc;
+  if (this->enabled) {
+    rc = ::SSL_read(this->tlsPtr.get(), recvbuf, Client::MAX_BUFFER_SIZE);
+    if (rc > 0) {
+      // data has been read
+      message = std::string(recvbuf, static_cast<size_t>(rc));
+      return rc;
+    }
+    int error = ::SSL_get_error(this->tlsPtr.get(), rc);
+    switch (error) {
+      case SSL_ERROR_WANT_READ:
+      case SSL_ERROR_WANT_WRITE:
+        return 0;
+      default:
+        break;
+    }
+  }
+  return -1;
+}
+
+}  // namespace tls
 }  // namespace cpp
 }  // namespace ggolbik
 #endif

@@ -3,6 +3,7 @@
 
 #include <errno.h>  // errno - is thread safe. On Linux, the global errno variable is thread-specific. POSIX requires that errno be threadsafe.
 #include <netinet/in.h>  // contains constants and structures needed for internet domain address.
+#include <openssl/err.h>
 #include <sys/socket.h>  // includes a number of definitions of structures needed for sockets.
 #include <unistd.h>  // ::close(int), ::read(int, void*, size_t)
 
@@ -16,10 +17,10 @@
 
 namespace ggolbik {
 namespace cpp {
-namespace socket {
+namespace tls {
 
-Worker::Worker(int socket)
-    : clientSocket{socket}, enabled{false}, running{false} {}
+Worker::Worker(int socket, ::SSL* ssl)
+    : clientSocket{socket}, enabled{false}, running{false}, tlsPtr{ssl} {}
 
 Worker::~Worker() { this->close(); }
 
@@ -96,6 +97,10 @@ void Worker::close() {
       this->workerThread.join();
     }
 
+    std::cout << "Close TLS connection." << std::endl;
+
+    this->tlsPtr.reset();
+
     std::cout << "Close connection." << std::endl;
 
     // With shutdown, you will still be able to receive pending data the peer
@@ -111,7 +116,10 @@ void Worker::close() {
   }
 }
 
-bool Worker::readString(std::string &message) {
+bool Worker::readString(std::string& message) {
+  if (this->tlsPtr) {
+    return this->readStringTls(message);
+  }
   byte recvbuf[Worker::MAX_BUFFER_SIZE];
 
   message = "";
@@ -144,18 +152,54 @@ bool Worker::readString(std::string &message) {
   return false;
 }
 
-void Worker::run() {
-  // Receive until the peer shuts down the connection
+bool Worker::readStringTls(std::string& message) {
+  byte recvbuf[Worker::MAX_BUFFER_SIZE];
+
+  message = "";
+
+  int rc;
   while (this->enabled) {
-    std::string message;
-    if (this->readString(message)) {
-      std::cout << "Data: " << message << std::endl;
-      if (!this->write(message.c_str(), message.size())) {
-        std::cerr << "Failed to send data to client" << std::endl;
+    rc = ::SSL_read(this->tlsPtr.get(), recvbuf, Worker::MAX_BUFFER_SIZE);
+    if (rc <= 0) {
+      // failed to read data
+      int error = ::SSL_get_error(this->tlsPtr.get(), rc);
+      if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
+        if (this->enabled) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        continue;
+      } else {
+        // an error occurred
+        printError();
+        std::cerr << "Failed to read tls" << std::endl;
+        break;
       }
-    } else {
-      // failed to read
-      break;
+    }
+    // data has been read
+    message = std::string(recvbuf, static_cast<size_t>(rc));
+    return true;
+  }
+
+  return false;
+}
+
+void Worker::run() {
+  if (!this->tlsPtr) {
+    std::cout << "There is no TLS connection." << std::endl;
+  } else {
+    // Receive until the peer shuts down the connection
+    while (this->enabled) {
+      std::string message;
+      if (this->readString(message)) {
+        std::cout << "Worker thread ID: " << this->workerThread.get_id()
+                  << " Data: " << message << std::endl;
+        if (!this->write(message.c_str(), message.size())) {
+          std::cerr << "Failed to send data to client" << std::endl;
+        }
+      } else {
+        // failed to read
+        break;
+      }
     }
   }
 
@@ -171,10 +215,10 @@ void Worker::run() {
             << std::endl;
 }
 
-/**
- * ssize_t write(int fd, const void *buf, size_t count);
- */
 bool Worker::write(const byte data[], size_t length) {
+  if (this->tlsPtr) {
+    return this->writeTls(data, length);
+  }
   if (length == 0) {
     return true;
   }
@@ -216,7 +260,47 @@ bool Worker::write(const byte data[], size_t length) {
   return false;
 }
 
-}  // namespace socket
+bool Worker::writeTls(const byte data[], size_t length) {
+  if (length == 0) {
+    return true;
+  }
+
+  size_t position = 0;
+  int remaining = length;
+
+  ssize_t rc;
+  while (this->enabled && remaining > 0) {
+    rc = ::SSL_write(this->tlsPtr.get(), data + (sizeof(byte) * position),
+                     remaining);
+    if (rc <= 0) {
+      // failed to read data
+      int error = ::SSL_get_error(this->tlsPtr.get(), rc);
+      if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_WRITE) {
+        if (this->enabled) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+        continue;
+      } else {
+        // an error occurred
+        printError();
+        ::ERR_print_errors_fp(stderr);
+        std::cerr << "Failed to write tls." << std::endl;
+        break;
+      }
+    }
+
+    remaining -= rc;
+    position += rc;
+  }
+
+  if (remaining == 0) {
+    return true;
+  }
+
+  return false;
+}
+
+}  // namespace tls
 }  // namespace cpp
 }  // namespace ggolbik
 #endif

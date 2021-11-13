@@ -21,7 +21,7 @@
 
 namespace ggolbik {
 namespace cpp {
-namespace socket {
+namespace tls {
 
 Server::Server(unsigned short port) : Server(port, "") {}
 
@@ -30,7 +30,9 @@ Server::Server(unsigned short port, std::string interfaceAddress)
       interfaceAddress{interfaceAddress},
       enabled{false},
       running{false},
-      listenSocket{-1} {}
+      listenSocket{-1},
+      keyFileName{"key.pem"},
+      certFileName{"cert.pem"} {}
 
 Server::~Server() { this->close(); }
 
@@ -104,8 +106,8 @@ static void printError() {
  * to create the socket address. On error you should check the errno value.
  */
 static bool createSocketAddress(unsigned short port,
-                                const std::string &interfaceAddress,
-                                sockaddr_in &socketAddress) {
+                                const std::string& interfaceAddress,
+                                sockaddr_in& socketAddress) {
   // define the IPv4 address family.
   socketAddress.sin_family = AF_INET;
 
@@ -194,7 +196,7 @@ static bool createSocketAddress(unsigned short port,
  * @return On success, a file descriptor for the new socket is returned. On
  * error, -1 is returned, and errno is set appropriately.
  */
-static int createSocket(sockaddr_in &socketAddress) {
+static int createSocket(sockaddr_in& socketAddress) {
   // SOCK_STREAM is used to specify a stream socket.
   // IPPROTO_TCP is used to specify the TCP protocol.
   return ::socket(socketAddress.sin_family, SOCK_STREAM, IPPROTO_TCP);
@@ -240,6 +242,20 @@ bool Server::closeSocket() {
 
   // return whether socket has been closed successfully.
   return closed;
+}
+
+static bool closeClientSocket(int socket) {
+  if (socket == -1) {
+    // invalid socket
+    // socket already closed
+    return true;
+  }
+
+  if (::close(socket) != 0) {
+    return false;
+  } else {
+    return true;
+  }
 }
 
 /**
@@ -393,10 +409,10 @@ static bool listenOnSocket(int socket) {
  * We call this binding the address to the socket, and the way to do it is with
  * the bind function.
  */
-static bool bindSocket(int socket, sockaddr_in &address) {
+static bool bindSocket(int socket, sockaddr_in& address) {
   // Setup the TCP listening socket
   // bind the socket
-  if (::bind(socket, (sockaddr *)&address, sizeof(address)) != 0) {
+  if (::bind(socket, (sockaddr*)&address, sizeof(address)) != 0) {
     return false;
   }
   return true;
@@ -551,23 +567,37 @@ static int poll(int socket)
  * @return On success, a nonnegative integer that is a file descriptor for the
  * accepted socket. On error, -1 is returned, errno is set appropriately
  */
-static int accept(int socket, sockaddr_in &peerAddress) {
+static int accept(int socket, sockaddr_in& peerAddress) {
   int addrlen = sizeof(peerAddress);
 
   // If address is not a null pointer, the address of the peer for the accepted
   // connection shall be stored in the sockaddr structure pointed to by address,
   // and the length of this address shall be stored in the object pointed to by
   // address_len.
-  return ::accept(socket, (sockaddr *)&peerAddress, (socklen_t *)&addrlen);
+  return ::accept(socket, (sockaddr*)&peerAddress, (socklen_t*)&addrlen);
 }
 
-bool Server::open() {
+bool Server::open(const std::string& password) {
   // lock mutex
   std::unique_lock<std::mutex> lock(this->mutexPublicMethods);
 
   // check if server is already listening
   if (this->enabled) {
     std::cerr << "Server is already listening." << std::endl;
+    return false;
+  }
+
+  // create TLS context
+  this->tlsContextPtr =
+      OpenSslWrapper::TlsContextPtr(OpenSslWrapper::createTlsContextServer());
+  if (!tlsContextPtr) {
+    std::cerr << "Failed to create TLS context." << std::endl;
+    return false;
+  }
+  // configure TLS context
+  if (!OpenSslWrapper::configureTlsContext(
+          this->tlsContextPtr.get(), this->keyFileName, this->certFileName)) {
+    std::cerr << "Failed to configure TLS context." << std::endl;
     return false;
   }
 
@@ -669,6 +699,9 @@ void Server::close() {
       printError();
     }
 
+    // dispose TLS context
+    this->tlsContextPtr.reset();
+
     this->running = false;
   }
 }
@@ -706,12 +739,12 @@ void Server::run() {
     sockaddr_in peerAddress;
     rc = accept(this->listenSocket, peerAddress);
     if (rc == -1) {
-      // an error occurred or the connection has been closed before accept could
-      // be executed
+      // an error occurred or the connection has been closed before accept
+      // could be executed
       std::cerr << "Failed to accept." << std::endl;
       printError();
-      // continue. The select block will handle the termination if the socket in
-      // not valid .
+      // continue. The select block will handle the termination if the socket
+      // in not valid .
       continue;
     } else if (!this->enabled) {
       // server shall stop listening
@@ -728,8 +761,17 @@ void Server::run() {
       continue;
     }
 
+    // check TLS
+    OpenSslWrapper::TlsPtr tlsPtr = OpenSslWrapper::TlsPtr(
+        OpenSslWrapper::acceptTls(this->tlsContextPtr.get(), clientSocket));
+    if (!tlsPtr) {
+      // failed to accept connection
+      closeClientSocket(clientSocket);
+      continue;
+    }
+
     // pass the accepted client socket to a worker thread
-    std::shared_ptr<Worker> worker(new Worker(clientSocket));
+    std::shared_ptr<Worker> worker(new Worker(clientSocket, tlsPtr.release()));
     // put worker in list to be able to stop all workers
     workers.push_back(worker);
     // start worker to read
@@ -753,7 +795,27 @@ void Server::run() {
   std::cout << "Stopped listening on port " << this->port << std::endl;
 }
 
-}  // namespace socket
+bool Server::setKeyFileName(const std::string& fileName) {
+  if (this->isOpen()) {
+    return false;
+  }
+  this->keyFileName = fileName;
+  return true;
+}
+
+const std::string& Server::getKeyFileName() { return this->keyFileName; }
+
+bool Server::setCertFileName(const std::string& fileName) {
+  if (this->isOpen()) {
+    return false;
+  }
+  this->certFileName = fileName;
+  return true;
+}
+
+const std::string& Server::getCertFileName() { return this->certFileName; }
+
+}  // namespace tls
 }  // namespace cpp
 }  // namespace ggolbik
 #endif

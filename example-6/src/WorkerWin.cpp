@@ -2,58 +2,45 @@
 
 #include <iostream>
 // Windows system header files must be lower case.
-#include <winsock2.h> // The Winsock2.h header file internally includes core elements from the Windows.h header file, so there is not usually an #include line for the Windows.h header file in Winsock applications.
+#include <winsock2.h>  // The Winsock2.h header file internally includes core elements from the Windows.h header file, so there is not usually an #include line for the Windows.h header file in Winsock applications.
 
 #include "Worker.h"
 
-namespace ggolbik
-{
-namespace cplusplus
-{
-namespace socket
-{
+namespace ggolbik {
+namespace cpp {
+namespace socket {
 
-Worker::Worker(SOCKET socket) : clientSocket{socket}, enabled{false}, running{false} {}
+Worker::Worker(SOCKET socket)
+    : clientSocket{socket}, enabled{false}, running{false} {}
 
-Worker::~Worker()
-{
-  this->close();
-}
+Worker::~Worker() { this->close(); }
 
 /**
- * 
- * 
- * @param error 
- * @param message 
+ *
+ *
+ * @param error
+ * @param message
  */
-static void printError()
-{
+static void printError() {
   LPWSTR pBuffer = NULL;
-  if (FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                     NULL,
-                     WSAGetLastError(),
-                     MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                     (LPWSTR)&pBuffer,
-                     0,
-                     NULL) == 0)
-  {
+  if (FormatMessageW(
+          FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
+              FORMAT_MESSAGE_IGNORE_INSERTS,
+          NULL, WSAGetLastError(), MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+          (LPWSTR)&pBuffer, 0, NULL) == 0) {
     // failed to get message
     std::cerr << "Failed to get error message." << std::endl;
-  }
-  else
-  {
+  } else {
     std::wcerr << std::wstring(pBuffer) << std::endl;
   }
   LocalFree(pBuffer);
 }
 
-bool Worker::start()
-{
+bool Worker::start() {
   // lock mutex
   std::unique_lock<std::mutex> lock(this->mutexPublicMethods);
 
-  if (this->clientSocket == INVALID_SOCKET)
-  {
+  if (this->clientSocket == INVALID_SOCKET) {
     std::cerr << "Invalid socket" << std::endl;
     return false;
   }
@@ -68,60 +55,47 @@ bool Worker::start()
   return true;
 }
 
-bool Worker::isRunning()
-{
+bool Worker::isRunning() {
   // lock mutex
   std::unique_lock<std::mutex> lock(this->mutexPublicMethods);
   // return whether server has been stopped or is still running
   return this->enabled || this->running;
 }
 
-static bool closeSocket(SOCKET socket)
-{
-  if (socket == INVALID_SOCKET)
-  {
+static bool closeSocket(SOCKET socket) {
+  if (socket == INVALID_SOCKET) {
     // invalid socket
     // socket already closed
     return true;
   }
 
-  if (::closesocket(socket) != 0)
-  {
+  if (::closesocket(socket) != 0) {
     return false;
-  }
-  else
-  {
+  } else {
     return true;
   }
 }
 
-void Worker::close()
-{
+void Worker::close() {
   // lock mutex
   std::unique_lock<std::mutex> lock(this->mutexPublicMethods);
 
-  if (this->enabled)
-  {
-
+  if (this->enabled) {
     this->enabled = false;
 
     std::cout << "Join worker thread" << std::endl;
 
-    if (this->workerThread.joinable())
-    {
+    if (this->workerThread.joinable()) {
       this->workerThread.join();
     }
 
     std::cout << "Close connection." << std::endl;
 
     // close socket
-    if (!closeSocket(this->clientSocket))
-    {
+    if (!closeSocket(this->clientSocket)) {
       std::cerr << "Shutdown socket failed." << std::endl;
       printError();
-    }
-    else
-    {
+    } else {
       std::cout << "Connection closed." << std::endl;
     }
 
@@ -131,75 +105,58 @@ void Worker::close()
   }
 }
 
-void Worker::run()
-{
+void Worker::run() {
   // Receive until the peer shuts down the connection
-  while (this->enabled)
-  {
+  while (this->enabled) {
     std::string message;
-    if (this->readString(message))
-    {
+    if (this->readString(message)) {
       std::cout << "Data: " << message << std::endl;
-      if (!this->write(message.c_str(), message.size()))
-      {
+      if (!this->write(message.c_str(), message.size())) {
         std::cerr << "Failed to send data to client" << std::endl;
       }
-    }
-    else
-    {
+    } else {
       // failed to read
       break;
     }
   }
 
-  if (!closeSocket(this->clientSocket))
-  {
+  if (!closeSocket(this->clientSocket)) {
     std::cout << "Shutdown socket failed." << std::endl;
     printError();
   }
   this->clientSocket = INVALID_SOCKET;
 
   this->running = false;
-  std::cout << "Stopped Worker thread ID: " << this->workerThread.get_id() << std::endl;
+  std::cout << "Stopped Worker thread ID: " << this->workerThread.get_id()
+            << std::endl;
 }
 
-bool Worker::readString(std::string &message)
-{
+bool Worker::readString(std::string &message) {
   byte recvbuf[Worker::MAX_BUFFER_SIZE];
 
   message = "";
 
   ssize_t rc;
-  while (this->enabled)
-  {
+  while (this->enabled) {
     rc = ::recv(this->clientSocket, recvbuf, Worker::MAX_BUFFER_SIZE, 0);
-    if (rc < 0 && WSAGetLastError() == WSAEWOULDBLOCK)
-    {
-      // The file descriptor fd refers to a file other than a socket and has been marked nonblocking (O_NONBLOCK), and the read would block.
-      if (this->enabled)
-      {
+    if (rc < 0 && WSAGetLastError() == WSAEWOULDBLOCK) {
+      // The file descriptor fd refers to a file other than a socket and has
+      // been marked nonblocking (O_NONBLOCK), and the read would block.
+      if (this->enabled) {
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       }
       continue;
-    }
-    else if (rc < 0)
-    {
+    } else if (rc < 0) {
       // an error occurred
       std::cerr << "Failed to read" << std::endl;
       break;
-    }
-    else if (rc == 0)
-    {
+    } else if (rc == 0) {
       // reached end of file
       break;
-    }
-    else if (!this->enabled)
-    {
+    } else if (!this->enabled) {
       // server shall stop listening
       break;
-    }
-    else
-    {
+    } else {
       // data has been read
       message = std::string(recvbuf, static_cast<size_t>(rc));
       return true;
@@ -209,10 +166,8 @@ bool Worker::readString(std::string &message)
   return false;
 }
 
-bool Worker::write(const byte data[], size_t length)
-{
-  if (length == 0)
-  {
+bool Worker::write(const byte data[], size_t length) {
+  if (length == 0) {
     return true;
   }
 
@@ -220,33 +175,26 @@ bool Worker::write(const byte data[], size_t length)
   int remaining = length;
 
   ssize_t rc;
-  while (this->enabled && remaining > 0)
-  {
-    rc = ::send(this->clientSocket, data + (sizeof(byte) * position), remaining, 0);
+  while (this->enabled && remaining > 0) {
+    rc = ::send(this->clientSocket, data + (sizeof(byte) * position), remaining,
+                0);
 
-    if (rc < 0 && WSAGetLastError() == WSAEWOULDBLOCK)
-    {
+    if (rc < 0 && WSAGetLastError() == WSAEWOULDBLOCK) {
       std::cout << "Worker write AGAIN" << std::endl;
-      // The file descriptor fd refers to a file other than a socket and has been marked nonblocking (O_NONBLOCK), and the read would block.
-      if (this->enabled)
-      {
+      // The file descriptor fd refers to a file other than a socket and has
+      // been marked nonblocking (O_NONBLOCK), and the read would block.
+      if (this->enabled) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
       }
       continue;
-    }
-    else if (rc < 0)
-    {
+    } else if (rc < 0) {
       // an error occurred
       std::cerr << "Failed to write" << std::endl;
       break;
-    }
-    else if (rc == 0)
-    {
+    } else if (rc == 0) {
       // reached end of file
       break;
-    }
-    else if (!this->enabled)
-    {
+    } else if (!this->enabled) {
       break;
     }
 
@@ -254,15 +202,14 @@ bool Worker::write(const byte data[], size_t length)
     position += rc;
   }
 
-  if (remaining == 0)
-  {
+  if (remaining == 0) {
     return true;
   }
 
   return false;
 }
 
-} // namespace socket
-} // namespace cplusplus
-} // namespace ggolbik
+}  // namespace socket
+}  // namespace cpp
+}  // namespace ggolbik
 #endif

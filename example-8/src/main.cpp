@@ -1,14 +1,41 @@
 #include <csignal>
+#include <fstream>
 #include <iostream>
 #include <string>
 
 #include "Client.h"
+#include "OpenSslWrapper.h"
 #include "Server.h"
 
-static int runServer(std::string serverAddress = "",
-                     unsigned short port = 5044) {
+static bool fileExists(const std::string &name) {
+  std::ifstream f(name.c_str());
+  return f.good();
+}
+
+static int runServer(std::string serverAddress = "", unsigned short port = 5044,
+                     std::string key = "", std::string cert = "") {
   std::cout << "Starting server..." << std::endl;
-  ggolbik::cpp::socket::Server server(port, serverAddress);
+  ggolbik::cpp::tls::Server server(port, serverAddress);
+  #ifndef _WIN32
+  if (key.empty() && cert.empty()) {
+    if (!fileExists(server.getKeyFileName()) ||
+        !fileExists(server.getCertFileName())) {
+      std::cout << "Generate self signed certificate." << std::endl;
+      if (!ggolbik::cpp::tls::OpenSslWrapper::createSelfSignedCert(
+              server.getKeyFileName(), server.getCertFileName(), "")) {
+        std::cerr << "Failed to create self signed certificate." << std::endl;
+        return -1;
+      }
+    }
+    std::cout << "Using self signed certificate." << std::endl;
+  }
+  #endif
+  if (!key.empty()) {
+    server.setKeyFileName(key);
+  }
+  if (!cert.empty()) {
+    server.setCertFileName(cert);
+  }
   server.open();
 
   if (!server.isOpen()) {
@@ -37,7 +64,7 @@ static int runServer(std::string serverAddress = "",
 static int runClient(std::string serverAddress = "127.0.0.1",
                      unsigned short port = 5044) {
   std::cout << "Starting client..." << std::endl;
-  ggolbik::cpp::socket::Client client(serverAddress, port);
+  ggolbik::cpp::tls::Client client(serverAddress, port);
 
   std::cout << "Connect to server." << std::endl;
   if (!client.open()) {
@@ -84,8 +111,11 @@ static void printHelp() {
   std::cout << "\tParameters:" << std::endl;
   std::cout << "\t\thost=<IP-Address>" << std::endl;
   std::cout << "\t\tport=<Port Number>" << std::endl;
+  std::cout << "\t\tkey=<path to key file>" << std::endl;
+  std::cout << "\t\tcert=<path to cert file>" << std::endl;
   std::cout << "\tExample:" << std::endl;
-  std::cout << "\t\tproject_cpp_binary client host=127.0.0.1 port=5044" << std::endl;
+  std::cout << "\t\tproject_cpp_binary client host=127.0.0.1 port=5044"
+            << std::endl;
 }
 
 int main(int argc, char *argv[]) {
@@ -93,6 +123,8 @@ int main(int argc, char *argv[]) {
   bool isClient = false;
   std::string serverAddress = "127.0.0.1";
   int port = 5044;
+  std::string key = "";
+  std::string cert = "";
 
   // writing to a broken socket will cause a SIGPIPE and make the program crash.
   // ignore the SIGPIPE and handle the error directly in your code.
@@ -113,6 +145,16 @@ int main(int argc, char *argv[]) {
       serverAddress = std::string(argv[i]);
       std::string delimiter = "host=";
       serverAddress = serverAddress.substr(5, serverAddress.size() - 5);
+    }
+    if (std::string(argv[i]).rfind("key=", 0) == 0) {
+      key = std::string(argv[i]);
+      std::string delimiter = "key=";
+      key = key.substr(4, key.size() - 4);
+    }
+    if (std::string(argv[i]).rfind("cert=", 0) == 0) {
+      cert = std::string(argv[i]);
+      std::string delimiter = "cert=";
+      cert = cert.substr(5, cert.size() - 5);
     }
     if (std::string(argv[i]).rfind("port=", 0) == 0) {
       std::string strPort = std::string(argv[i]);
@@ -146,6 +188,8 @@ int main(int argc, char *argv[]) {
   // print parameters
   std::cout << "Host: " << serverAddress << std::endl;
   std::cout << "Port: " << port << std::endl;
+  std::cout << "Key: " << key << std::endl;
+  std::cout << "Cert: " << cert << std::endl;
 
   if (isServer) {
     runServer(serverAddress, port);

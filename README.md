@@ -10,6 +10,8 @@
   - A simple template to build a C++ project and run Cppcheck.
 - [Example 5](example-5/README.md)
   - A simple template to build a C++ project and run SonarQube.
+- [Example 6](example-6/README.md)
+  - A simple C++ project which uses sockets.
 - [Example 7](example-7/README.md)
   - A simple template to build a C++ project with cross toolchain.
 

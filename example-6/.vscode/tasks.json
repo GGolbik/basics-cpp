@@ -1,0 +1,27 @@
+{
+  "version": "2.0.0",
+  "tasks": [{
+      "label": "CMake Debug",
+      "type": "shell",
+      "windows": {
+        "command": "cmd",
+        "args": ["/c", "${workspaceFolder}/build.bat", "Debug"]
+      },
+      "linux":{
+        "command": "${workspaceFolder}/build.sh",
+        "args": ["Debug"],  
+      }
+    },
+    {
+      "label": "CMake Release",
+      "type": "shell",
+      "windows":{
+        "command": "cmd",
+        "args": ["/c", "${workspaceFolder}/build.bat"],
+      },
+      "linux":{
+        "command": "${workspaceFolder}/build.sh"
+      }
+    },
+  ]
+}

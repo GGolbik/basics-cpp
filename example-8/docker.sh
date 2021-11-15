@@ -26,7 +26,16 @@ docker exec \
 docker exec \
   --interactive \
   --tty \
+  ${CONTAINER_ID} bash /app/libs.sh
+
+docker exec \
+  --interactive \
+  --tty \
   ${CONTAINER_ID} bash /app/build.sh
+docker exec \
+  --interactive \
+  --tty \
+  ${CONTAINER_ID} find /app/scripts -name "*.sh" -exec {} \;
 
 docker exec \
   --interactive \

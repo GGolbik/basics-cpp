@@ -1,4 +1,3 @@
-#ifdef __linux__
 #pragma once
 
 #include <openssl/ssl.h>
@@ -76,5 +75,3 @@ class OpenSslWrapper {
 }  // namespace tls
 }  // namespace cpp
 }  // namespace ggolbik
-
-#endif

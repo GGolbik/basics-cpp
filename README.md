@@ -1,21 +1,21 @@
 # Basics C++
 
-- [Example 1](example-1/README.md)
+- [Example 1](example-1)
   - A simple template to build a C++ project.
-- [Example 2](example-2/README.md)
+- [Example 2](example-2)
   - A simple template to build a C++ project, run tests and get code coverage report.
-- [Example 3](example-3/README.md)
+- [Example 3](example-3)
   - A simple template to build a C++ project, run tests with GoogleTest Framework and get code coverage report.
-- [Example 4](example-4/README.md)
+- [Example 4](example-4)
   - A simple template to build a C++ project and run Cppcheck.
-- [Example 5](example-5/README.md)
+- [Example 5](example-5)
   - A simple template to build a C++ project and run SonarQube.
-- [Example 6](example-6/README.md)
+- [Example 6](example-6)
   - A simple C++ project which uses sockets.
-- [Example 7](example-7/README.md)
+- [Example 7](example-7)
   - A simple template to build a C++ project with cross toolchain.
-- [Example 8](example-8/README.md)
-  - A simple C++ project which uses sockets with TLS (OpenSSL).
+- [Example 8](example-8)
+  - A simple C++ project which uses sockets with TLS (OpenSSL) and builds with cross toolchain.
 
 # Table of contents
 
@@ -40,6 +40,7 @@
   * [Configuration - Quality Profiles](#configuration---quality-profiles)
 * [Cross Toolchain](#cross-toolchain)
 * [OpenSSL](#openssl)
+
 # IDE
 
 ## VSCode
@@ -366,6 +367,9 @@ sudo apt install mingw-w64
 
 # OpenSSL
 
+You can install the [OpenSSL](https://www.openssl.org/) for development with the below command:
 ~~~
-sudo apt-get install openssl libssl-dev
+sudo apt install openssl libssl-dev
 ~~~
+
+You can also build OpenSSL from [source](github.com/openssl/openssl) (see [example 8](example-8)).

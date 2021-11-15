@@ -1,13 +1,13 @@
 # Basics C++ - Example 8
 
-# Table of Contents
-
 * [Build Project](#build-project)
 * [Install Project](#install-project)
 * [Build and Install with Docker](#build-and-install-with-docker)
 * [Usage](#usage)
   * [Client Example](#client-example)
   * [Server Example](#server-example)
+* [OpenSSL](#openssl)
+  * [Windows](#windows)
 
 # Build Project
 
@@ -150,3 +150,40 @@ Worker thread ID: 140242292045568
 Worker thread ID: 140242292045568 Data: Hello World!
 Worker thread ID: 140242292045568 Data: What's up!
 ~~~
+
+# OpenSSL
+
+The the [wiki](https://wiki.openssl.org/index.php/Compilation_and_Installation) for more info about OpenSSL build configuration.
+
+The `build.sh` script is based on the installed `libssl-dev` package.
+
+In the `libs` directory are OpenSSL build scripts for each target:
+- `openssl-linux-amd64.sh`
+- `openssl-linux-arm64.sh`
+- `openssl-linux-armel.sh`
+- `openssl-linux-armhf.sh`
+- `openssl-windows-x86_64.sh`
+- `openssl-windows-x86.sh`
+
+## Windows
+
+You must copy the `libssl-1_1-x64.dll` and `libcrypto-1_1-x64.dll` from the `example-8/build/openssl-<target>/bin` directory to windows in the same directory of your application or the application won't start.
+
+You can also build OpenSSL with `no-shared` option but then you have to link against `crypt32` for windows.
+
+# Cross Toolchain
+
+In the `cmake` directory are CMake toolchain files for each target:
+- `build-linux-amd64.sh`
+- `build-linux-arm64.sh`
+- `build-linux-armel.sh`
+- `build-linux-armhf.sh`
+- `build-windows-x86_64.sh`
+- `build-windows-x86.sh`
+
+In the `script` directory are build scripts for each target which will use the toolchain files.
+
+The docker script executes all scripts in the directory.
+
+`-DCMAKE_SYSTEM_NAME`: name of the platform, for which we are building (target platform), `Linux`, `Windows` or `Darwin` for macOS. By default, this value is the same as `CMAKE_HOST_SYSTEM_NAME`, which means that we are building for local platform (no cross-compilation).
+If your target is an embedded system without OS set `CMAKE_SYSTEM_NAME` to `Generic`.

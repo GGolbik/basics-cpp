@@ -16,7 +16,8 @@ set(CMAKE_CXX_COMPILER i686-w64-mingw32-g++-posix)
 
 # required compilation and linking flags on that particular platform:
 #set(CMAKE_C_FLAGS <c_flags>)
-#set(CMAKE_CXX_FLAGS <cpp_flags>)
+# Add "-static" or you need to copy the libstdc++-6.dll library and a few more from your mingw installation (should be in /usr/lib/gcc/x86_64-w64-mingw32/8.3-posix/) 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
 #set(CMAKE_C_FLAGS_DEBUG <c_flags_for_debug>)
 #set(CMAKE_C_FLAGS_RELEASE <c_flags_for_release>)
 #set(CMAKE_CXX_FLAGS_DEBUG <cpp_flags_for_debug>)

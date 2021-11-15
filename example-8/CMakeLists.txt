@@ -70,14 +70,32 @@ target_include_directories(${PROJECT_TARGET_BINARY} PUBLIC ${CMAKE_CURRENT_SOURC
 # external libs
 # This part is what we call linking in compilation terms. So what you have done is you have included the header files of these 3rd party libraries and now you need to tell the compiler where exactly are these libraries located.
 ###########################################################
-if (WIN32)
-  # set stuff for windows
-  target_link_libraries(${PROJECT_TARGET_BINARY} ws2_32)
+
+set(OPENSSL_USE_STATIC_LIBS FALSE) # comment out or change the value to FALSE to use SHARED libraries.
+# OPENSSL_ROOT_DIR is defined in CMAKE_TOOLCHAIN_FILE
+message(STATUS "OPENSSL_ROOT_DIR ${OPENSSL_ROOT_DIR}")
+find_package(OpenSSL REQUIRED)
+if (OPENSSL_FOUND)
+  message(STATUS "Found OpenSSL")
+  message(STATUS "OPENSSL_INCLUDE_DIR ${OPENSSL_INCLUDE_DIR}")
+  message(STATUS "OPENSSL_CRYPTO_LIBRARY ${OPENSSL_CRYPTO_LIBRARY}")
+  message(STATUS "OPENSSL_SSL_LIBRARY ${OPENSSL_SSL_LIBRARY}")
+  message(STATUS "OPENSSL_LIBRARIES ${OPENSSL_LIBRARIES}")
+  message(STATUS "OPENSSL_VERSION ${OPENSSL_VERSION}")
+  target_include_directories(${PROJECT_TARGET_BINARY} PUBLIC ${OPENSSL_INCLUDE_DIR})
+  if (OPENSSL_USE_STATIC_LIBS)
+    # You need to link the dl (dynamic linker) library if linking against static OpenSSL libraries.
+    message(STATUS "Linking against dl (dynamic linker) library.")
+    target_link_libraries(${PROJECT_TARGET_BINARY} dl)
+  endif()
+  target_link_libraries(${PROJECT_TARGET_BINARY} ${OPENSSL_LIBRARIES})
 endif()
 
-# https://cmake.org/cmake/help/latest/module/FindOpenSSL.html
-find_package(OpenSSL REQUIRED)
-target_link_libraries(${PROJECT_TARGET_BINARY} OpenSSL::SSL)
+if (WIN32)
+  # set stuff for windows
+  message(STATUS "Linking against ws2_32 library.") 
+  target_link_libraries(${PROJECT_TARGET_BINARY} crypt32 ws2_32)
+endif()
 
 ###########################################################
 # install

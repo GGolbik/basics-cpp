@@ -1,5 +1,7 @@
 # Basics C++ - Example 8
 
+# Table of contents
+
 * [Build Project](#build-project)
 * [Install Project](#install-project)
 * [Build and Install with Docker](#build-and-install-with-docker)
@@ -8,6 +10,7 @@
   * [Server Example](#server-example)
 * [OpenSSL](#openssl)
   * [Windows](#windows)
+* [Cross Toolchain](#cross-toolchain)
 
 # Build Project
 

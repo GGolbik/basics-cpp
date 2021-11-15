@@ -4,9 +4,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 # "Debug" or empty for release build
 BUILD_TYPE=$1
-BUILD_DIR="${SCRIPT_DIR}/build/default"
-SRC_DIR=${SCRIPT_DIR}
+BUILD_DIR="${SCRIPT_DIR}/../build/linux-amd64"
+SRC_DIR=${SCRIPT_DIR}/../
+OPENSSL_SCRIPT=${SCRIPT_DIR}/../libs/openssl-linux-amd64.sh
 TOOLCHAIN_CMAKE=$(which cmake)
+TOOLCHAIN_FILE=${SCRIPT_DIR}/../cmake/linux-amd64.cmake
 
 if [[ ! -d ${BUILD_DIR} ]]; then
   mkdir -p ${BUILD_DIR}
@@ -14,7 +16,8 @@ fi
 
 /bin/bash -c "set -o pipefail \
   && cd ${BUILD_DIR} \
-  && ${TOOLCHAIN_CMAKE} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ${SRC_DIR} \
+  && bash ${OPENSSL_SCRIPT} \
+  && ${TOOLCHAIN_CMAKE} -DCMAKE_TOOLCHAIN_FILE=${TOOLCHAIN_FILE} -DCMAKE_BUILD_TYPE=${BUILD_TYPE} ${SRC_DIR} \
   && ${TOOLCHAIN_CMAKE} --build ."
 
 EXIT_CODE=$?

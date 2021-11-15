@@ -1,5 +1,3 @@
-#ifdef __linux__
-
 #include "OpenSslWrapper.h"
 
 #include <openssl/err.h>
@@ -378,5 +376,3 @@ bool OpenSslWrapper::createSelfSignedCert(const std::string &keyFileName,
 }  // namespace tls
 }  // namespace cpp
 }  // namespace ggolbik
-
-#endif

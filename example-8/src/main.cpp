@@ -16,7 +16,6 @@ static int runServer(std::string serverAddress = "", unsigned short port = 5044,
                      std::string key = "", std::string cert = "") {
   std::cout << "Starting server..." << std::endl;
   ggolbik::cpp::tls::Server server(port, serverAddress);
-  #ifndef _WIN32
   if (key.empty() && cert.empty()) {
     if (!fileExists(server.getKeyFileName()) ||
         !fileExists(server.getCertFileName())) {
@@ -29,7 +28,6 @@ static int runServer(std::string serverAddress = "", unsigned short port = 5044,
     }
     std::cout << "Using self signed certificate." << std::endl;
   }
-  #endif
   if (!key.empty()) {
     server.setKeyFileName(key);
   }
@@ -126,11 +124,13 @@ int main(int argc, char *argv[]) {
   std::string key = "";
   std::string cert = "";
 
+#ifndef _WIN32
   // writing to a broken socket will cause a SIGPIPE and make the program crash.
   // ignore the SIGPIPE and handle the error directly in your code.
   // set the SIGPIPE handler to SIG_IGN.
   // This will prevent any socket or pipe write from causing a SIGPIPE signal.
   std::signal(SIGPIPE, SIG_IGN);
+#endif
 
   std::cout << "Input Arguments:" << std::endl;
   for (int i = 0; i < argc; i++) {

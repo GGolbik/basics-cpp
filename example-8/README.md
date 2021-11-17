@@ -8,6 +8,7 @@
 * [Usage](#usage)
   * [Client Example](#client-example)
   * [Server Example](#server-example)
+  * [Algorithm Example](#algorithm-example)
 * [OpenSSL](#openssl)
   * [Windows](#windows)
 * [Cross Toolchain](#cross-toolchain)
@@ -29,12 +30,17 @@ Execute the `docker.sh` script on Linux. There is no support for Windows yet.
 Actions:
 - `server`
 - `client`
+- `algorithm`
 
 Parameters:
 - `host=<IP-Address>`
 - `port=<port number>`
 - `key=<path to key file>`
 - `cert=<path to cert file>`
+- `task=<base64-encode|base64-decode|base64url-encode|base64url-decode|sha256|sign|verify>`
+- `input=<data to consume>`
+- `signature=<base64 signature of input>`
+- `file=<file which contains the data to consume>`
 
 The server will generate a self signed certifcate or you can pass your own certifcate.
 You can generate your own certifcate e.g. with:
@@ -126,6 +132,106 @@ What's up!
 > Data has been sent.
 Response: Hello World!
 >>> Enter a message to send and press return.
+~~~
+
+## Algorithm Example
+
+Calc sha256:
+~~~
+project_cpp_binary algorithm task=sha256 input="test"
+Input Arguments:
+        0: ./build/default/project_cpp_binary
+        1: algorithm
+        2: task=sha256
+        3: input=test
+Host: 127.0.0.1
+Port: 5044
+Key: 
+Cert: 
+Task: sha256
+Input: test
+Signature: 
+File: 
+sha256 (input): 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08
+~~~
+
+Encode base64 string:
+~~~
+project_cpp_binary algorithm task=base64-encode input="test"
+Input Arguments:
+        0: ./build/default/project_cpp_binary
+        1: algorithm
+        2: task=base64-encode
+        3: input=test
+Host: 127.0.0.1
+Port: 5044
+Key: 
+Cert: 
+Task: base64-encode
+Input: test
+Signature: 
+File: 
+base64-encoded (input): dGVzdA==
+~~~
+
+Decode base64 string:
+~~~
+project_cpp_binary algorithm task=base64-decode input="dGVzdA=="
+Input Arguments:
+        0: ./build/default/project_cpp_binary
+        1: algorithm
+        2: task=base64-decode
+        3: input=dGVzdA==
+Host: 127.0.0.1
+Port: 5044
+Key: 
+Cert: 
+Task: base64-decode
+Input: dGVzdA==
+Signature: 
+File: 
+base64-decoded (input): test
+~~~
+
+Sign data:
+~~~
+project_cpp_binary algorithm task=sign input="test"
+Input Arguments:
+        0: ./build/default/project_cpp_binary
+        1: algorithm
+        2: task=sign
+        3: input=test
+Host: 127.0.0.1
+Port: 5044
+Key: 
+Cert: 
+Task: sign
+Input: test
+Signature: 
+File: 
+Using self signed certificate.
+signature (base64): Re0b/c3WJSZODfPRIJ+Qo88Wb1cx4lFyE78eTvcCcjSWy7VZBVsWHtagzR6dUUhl8CEjYipbejLhVLkFuZvWI9OZ7DpYQDjmpuvK06LSKPS/9AHxGMDusSYT+cwSz3uFK2O2elik6F1sZ2bUXZkgTIK6W6G9UV/mAIsbeXDjRmK3WPGhOqEaNo6YJn2+acBh8sgxSaOsmF7T4mj41FxNIeRQjHqbNz4undOFNkpSXlEfTjA+QvP7BGpd8tnpxMA0DZK2JQUMs/3JjjbBb5EER0jt/hf+boVgNoJc80jPRq1xbTGNE9wWyNjt5vTQ1lTx+FczBoM/rVWvrtFXZSkeww==
+~~~
+
+Verify signed data:
+~~~
+project_cpp_binary algorithm task=verify input="test" signature="Re0b/c3WJSZODfPRIJ+Qo88Wb1cx4lFyE78eTvcCcjSWy7VZBVsWHtagzR6dUUhl8CEjYipbejLhVLkFuZvWI9OZ7DpYQDjmpuvK06LSKPS/9AHxGMDusSYT+cwSz3uFK2O2elik6F1sZ2bUXZkgTIK6W6G9UV/mAIsbeXDjRmK3WPGhOqEaNo6YJn2+acBh8sgxSaOsmF7T4mj41FxNIeRQjHqbNz4undOFNkpSXlEfTjA+QvP7BGpd8tnpxMA0DZK2JQUMs/3JjjbBb5EER0jt/hf+boVgNoJc80jPRq1xbTGNE9wWyNjt5vTQ1lTx+FczBoM/rVWvrtFXZSkeww=="
+Input Arguments:
+        0: ./build/default/project_cpp_binary
+        1: algorithm
+        2: task=verify
+        3: input=test
+        4: signature=Re0b/c3WJSZODfPRIJ+Qo88Wb1cx4lFyE78eTvcCcjSWy7VZBVsWHtagzR6dUUhl8CEjYipbejLhVLkFuZvWI9OZ7DpYQDjmpuvK06LSKPS/9AHxGMDusSYT+cwSz3uFK2O2elik6F1sZ2bUXZkgTIK6W6G9UV/mAIsbeXDjRmK3WPGhOqEaNo6YJn2+acBh8sgxSaOsmF7T4mj41FxNIeRQjHqbNz4undOFNkpSXlEfTjA+QvP7BGpd8tnpxMA0DZK2JQUMs/3JjjbBb5EER0jt/hf+boVgNoJc80jPRq1xbTGNE9wWyNjt5vTQ1lTx+FczBoM/rVWvrtFXZSkeww==
+Host: 127.0.0.1
+Port: 5044
+Key: 
+Cert: 
+Task: verify
+Input: test
+Signature: Re0b/c3WJSZODfPRIJ+Qo88Wb1cx4lFyE78eTvcCcjSWy7VZBVsWHtagzR6dUUhl8CEjYipbejLhVLkFuZvWI9OZ7DpYQDjmpuvK06LSKPS/9AHxGMDusSYT+cwSz3uFK2O2elik6F1sZ2bUXZkgTIK6W6G9UV/mAIsbeXDjRmK3WPGhOqEaNo6YJn2+acBh8sgxSaOsmF7T4mj41FxNIeRQjHqbNz4undOFNkpSXlEfTjA+QvP7BGpd8tnpxMA0DZK2JQUMs/3JjjbBb5EER0jt/hf+boVgNoJc80jPRq1xbTGNE9wWyNjt5vTQ1lTx+FczBoM/rVWvrtFXZSkeww==
+File: 
+Using self signed certificate.
+Data is valid.
 ~~~
 
 ## Server Example

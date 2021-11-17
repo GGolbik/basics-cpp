@@ -10,6 +10,7 @@
 #include <winsock2.h>
 #else
 #include <openssl/ssl.h>
+
 #include "OpenSslWrapper.h"
 #endif
 
@@ -35,7 +36,7 @@ class Worker {
 #ifdef _WIN32
   Worker(SOCKET socket);
 #else
-  Worker(int socket, ::SSL* ssl);
+  Worker(int socket, ::SSL *ssl);
 #endif
   /**
    * Move constructor
@@ -83,14 +84,14 @@ class Worker {
   std::atomic_bool running;
   std::thread workerThread;
 
-public: // TLS methods
+ public:  // TLS methods
   bool readStringTls(std::string &message);
   bool writeTls(const byte data[], size_t length);
 
-private: // TLS fields
-  #ifndef _WIN32
+ private:  // TLS fields
+#ifndef _WIN32
   OpenSslWrapper::TlsPtr tlsPtr;
-  #endif
+#endif
 };
 
 }  // namespace tls

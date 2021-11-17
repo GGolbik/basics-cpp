@@ -56,21 +56,23 @@ class Client {
   void close();
   /**
    * @brief Reads a string from the stream.
-   * 
+   *
    * @param message The read message if return value is > 0
-   * @return the size of the read data, if 0 there was no data, if -1 an error occured.
+   * @return the size of the read data, if 0 there was no data, if -1 an error
+   * occured.
    */
   int tryReadString(std::string &message);
   /**
-   * @brief Reads a string from the stream. Blocks until data is available or an error occured.
-   * 
+   * @brief Reads a string from the stream. Blocks until data is available or an
+   * error occured.
+   *
    * @param message
    * @return true if data has been read. false if an error occured.
    */
   bool readString(std::string &message);
   /**
    * @brief Writes data to the stream.
-   * 
+   *
    * @param data the data to write
    * @param length the length of the array
    * @return true if data has been written. false if an error occured.
@@ -87,7 +89,7 @@ class Client {
   std::string serverAddress;
   unsigned short port;
 
- public: // TLS methods
+ public:  // TLS methods
   int tryReadStringTls(std::string &message);
   // blocks until data is available
   bool readStringTls(std::string &message);

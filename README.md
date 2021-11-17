@@ -15,7 +15,7 @@
 - [Example 7](example-7)
   - A simple template to build a C++ project with cross toolchain.
 - [Example 8](example-8)
-  - A simple C++ project which uses sockets with TLS (OpenSSL) and builds with cross toolchain.
+  - A simple C++ project which uses sockets with TLS (OpenSSL), provides encoding/decoding and builds with cross toolchain.
 
 # Table of contents
 

@@ -3,8 +3,10 @@
 #include <openssl/err.h>
 
 #include <cstdio>  // fopen fclose
+#include <functional>
+#include <iostream>
 #include <thread>  // std::this_thread
-
+#include <vector>
 namespace ggolbik {
 namespace cpp {
 namespace tls {
@@ -165,29 +167,29 @@ bool OpenSslWrapper::configureTlsContext(::SSL_CTX *ctx,
   return ssl;
 }
 
-void OpenSslWrapper::displayCerts(::SSL *ssl) {
-  // get the server's certificate
-  ::X509 *cert = ::SSL_get_peer_certificate(ssl);
-  if (cert != nullptr) {
-    ::printf("Server certificate:\n");
-
+void OpenSslWrapper::displayCert(const TlsX509Cert &cert) {
+  if (cert) {
     ::BIO *bio_out = ::BIO_new_fp(stdout, BIO_NOCLOSE);
-    
-    ::X509_print(bio_out, cert);
+
+    ::X509_print(bio_out, cert.get());
 
     ::BIO_free(bio_out);
-
-    ::X509_free(cert);
   } else {
-    ::printf("Info: No certificate configured.\n");
+    std::cout << "Info: No certificate found." << std::endl;
   }
+}
+
+void OpenSslWrapper::displayCerts(::SSL *ssl) {
+  TlsX509Cert cert = TlsX509Cert(::SSL_get_peer_certificate(ssl));
+  // get the server's certificate
+  displayCert(cert);
 }
 
 void OpenSslWrapper::displayCertsSimple(::SSL *ssl) {
   // get the server's certificate
   ::X509 *cert = ::SSL_get_peer_certificate(ssl);
   if (cert != nullptr) {
-    ::printf("Server certificate:\n");
+    std::cout << "Server certificate:" << std::endl;
 
     char *line = ::X509_NAME_oneline(::X509_get_subject_name(cert), 0, 0);
     ::printf("Subject: %s\n", line);
@@ -210,7 +212,7 @@ void OpenSslWrapper::displayCertsSimple(::SSL *ssl) {
 
     ::X509_free(cert);
   } else {
-    ::printf("Info: No certificate configured.\n");
+    std::cout << "Info: No certificate configured." << std::endl;
   }
 }
 
@@ -370,6 +372,169 @@ bool OpenSslWrapper::createSelfSignedCert(const std::string &keyFileName,
 
   ::X509_free(x509);
   ::EVP_PKEY_free(pkey);
+  return true;
+}
+
+bool OpenSslWrapper::readKeyFile(const std::string &fileName, TlsKey &key,
+                                 const std::string &password) {
+  ::FILE *fp = ::fopen(fileName.c_str(), "r");
+  if (!fp) {
+    std::cerr << "Failed to open file " << fileName << std::endl;
+    return false;
+  }
+  key.reset(PEM_read_PrivateKey(
+      fp, NULL, NULL, password.empty() ? NULL : (void *)password.c_str()));
+  ::fclose(fp);
+  return key.get() != nullptr;
+}
+
+bool OpenSslWrapper::readCertKey(const std::string &fileName, TlsKey &key) {
+  TlsX509Cert x509Cert = {};
+  if (!OpenSslWrapper::readCertFile(fileName, x509Cert, "")) {
+    return false;
+  }
+  return readCertKey(x509Cert, key);
+}
+
+bool OpenSslWrapper::readCertKey(const TlsX509Cert &cert, TlsKey &key) {
+  key.reset(X509_get_pubkey(cert.get()));
+  return key.get() != nullptr;
+}
+
+bool OpenSslWrapper::readCertFile(const std::string &fileName,
+                                  TlsX509Cert &cert,
+                                  const std::string &password) {
+  ::FILE *fp = ::fopen(fileName.c_str(), "r");
+  if (!fp) {
+    std::cerr << "Failed to open file " << fileName << std::endl;
+    return false;
+  }
+  cert.reset(PEM_read_X509(fp, NULL, NULL,
+                           password.empty() ? NULL : (void *)password.c_str()));
+  ::fclose(fp);
+  return cert.get() != nullptr;
+}
+/*
+bool OpenSslWrapper::readCertFile(const std::string& fileName,
+std::unique_ptr<::RSA, std::function<void(::RSA* p)>>& key, const std::string&
+password)
+{
+    ::FILE *fp = ::fopen(fileName.c_str(), "r");
+    if (!fp)
+    {
+        std::cerr << "Failed to open file " << fileName << std::endl;
+        return false;
+    }
+    // PEM_read_RSA_PUBKEY() reads the PEM format. PEM_read_RSAPublicKey() reads
+the PKCS#1 format. key.reset(PEM_read_RSA_PUBKEY(fp, NULL, NULL,
+password.empty() ? NULL : (void*)password.c_str()));
+    ::fclose(fp);
+    return key.get() != nullptr;
+}
+*/
+
+// Asymmetric
+bool OpenSslWrapper::signData(TlsKey &key, const std::string &msg,
+                              std::string &signature) {
+  std::size_t slen;
+
+  /* Create the Message Digest Context */
+  TlsMessageDigestContext mdctx = TlsMessageDigestContext(::EVP_MD_CTX_new());
+  if (!mdctx) {
+    return false;
+  }
+
+  /* Initialise the DigestSign operation - SHA-256 has been selected
+   * as the message digest function in this example */
+  if (1 != ::EVP_DigestSignInit(mdctx.get(), NULL, ::EVP_sha256(), NULL,
+                                key.get())) {
+    return false;
+  }
+
+  /* Call update with the message */
+  if (1 != ::EVP_DigestUpdate(mdctx.get(), msg.c_str(), msg.size())) {
+    return false;
+  }
+
+  /* Finalise the DigestSign operation */
+  /* First call EVP_DigestSignFinal with a NULL sig parameter to
+   * obtain the length of the signature. Length is returned in slen */
+  if (1 != ::EVP_DigestSignFinal(mdctx.get(), NULL, &slen)) {
+    return false;
+  }
+  /* Allocate memory for the signature based on size in slen */
+  std::vector<char> sig(slen);
+  /* Obtain the signature */
+  if (1 !=
+      ::EVP_DigestSignFinal(mdctx.get(), (unsigned char *)sig.data(), &slen)) {
+    return false;
+  }
+  // copy data
+  signature = std::string(sig.data(), slen);
+
+  return true;
+}
+
+/**
+ * @brief
+ *
+ * @param key the public key
+ * @param msg input data
+ * @param signature signed data
+ * @param algorithm the used algorithm e.g. RS256, RS512, HS256, HS512
+ * @return
+ */
+bool OpenSslWrapper::verifySignedData(TlsKey &key, const std::string &msg,
+                                      const std::string &signature,
+                                      const std::string &algorithm) {
+  // Get openssl impl
+  // EVP_MD see https://www.openssl.org/docs/manmaster/man3/EVP_DigestInit.html
+  // EVP_get_digestbyname see
+  // https://www.openssl.org/docs/man1.0.2/man3/EVP_md5.html
+  const ::EVP_MD *messageDigest = ::EVP_sha256();
+  if (algorithm == "RS256" || algorithm == "HS256") {
+    // RS256 (RSA Signature with SHA-256)
+    // HS256 (HMAC with SHA-256)
+    messageDigest = ::EVP_get_digestbyname("SHA256");
+  } else if (algorithm == "RS512" || algorithm == "HS512") {
+    // RS512 (RSA Signature with SHA-512)
+    // HS512 (HMAC with SHA-512)
+    messageDigest = ::EVP_get_digestbyname("SHA512");
+  } else if (!algorithm.empty()) {
+    messageDigest = EVP_get_digestbyname(algorithm.c_str());
+  }
+  if (messageDigest == nullptr) {
+    return false;
+  }
+
+  /* Create the Message Digest Context */
+  TlsMessageDigestContext mdctx = TlsMessageDigestContext(EVP_MD_CTX_new());
+  if (!mdctx) {
+    return false;
+  }
+
+  // Initialise the DigestVerify operation - SHA-256 has been selected as the
+  // message digest function in this example
+  if (1 != ::EVP_DigestVerifyInit(mdctx.get(), NULL, messageDigest, NULL,
+                                  key.get())) {
+    return false;
+  }
+
+  /* Call update with the message */
+  if (1 != ::EVP_DigestVerifyUpdate(mdctx.get(), msg.c_str(), msg.size())) {
+    return false;
+  }
+
+  /* Finalise the _DigestVerify operation */
+  if (1 != ::EVP_DigestVerifyFinal(mdctx.get(),
+                                   (unsigned char *)signature.c_str(),
+                                   signature.size())) {
+    return false;
+  }
+
+  // ::EVP_DigestVerifyInit
+  // ::EVP_DigestVerifyUpdate
+  // ::EVP_DigestVerifyFinal
   return true;
 }
 

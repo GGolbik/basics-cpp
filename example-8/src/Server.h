@@ -59,7 +59,7 @@ class Server {
    * Opens the socket. Return false if server failed to open socket or is
    * already open.
    */
-  bool open(const std::string& password = "");
+  bool open(const std::string &password = "");
   /**
    * Returns true if the server is enabled or running
    */
@@ -112,11 +112,12 @@ class Server {
 #else
   int listenSocket;
 #endif
- public: // TLS methods
-  bool setKeyFileName(const std::string& fileName);
-  const std::string& getKeyFileName();
-  bool setCertFileName(const std::string& fileName);
-  const std::string& getCertFileName();
+ public:  // TLS methods
+  bool setKeyFileName(const std::string &fileName);
+  const std::string &getKeyFileName();
+  bool setCertFileName(const std::string &fileName);
+  const std::string &getCertFileName();
+
  private:  // TLS fields
   std::string keyFileName;
   std::string certFileName;

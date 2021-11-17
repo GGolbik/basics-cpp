@@ -266,7 +266,7 @@ static SOCKET accept(SOCKET socket, sockaddr_in &peerAddress) {
  *   int WSAStartup(WORD wVersionRequired, LPWSADATA lpWSAData);
  * is defined in header <winsock.h>
  */
-bool Server::open(const std::string& password) {
+bool Server::open(const std::string &password) {
   // lock mutex
   std::unique_lock<std::mutex> lock(this->mutexPublicMethods);
 
@@ -444,8 +444,7 @@ void Server::run() {
   std::cout << "Stopped listening on port " << this->port << std::endl;
 }
 
-
-bool Server::setKeyFileName(const std::string& fileName) {
+bool Server::setKeyFileName(const std::string &fileName) {
   if (this->isOpen()) {
     return false;
   }
@@ -453,9 +452,9 @@ bool Server::setKeyFileName(const std::string& fileName) {
   return true;
 }
 
-const std::string& Server::getKeyFileName() { return this->keyFileName; }
+const std::string &Server::getKeyFileName() { return this->keyFileName; }
 
-bool Server::setCertFileName(const std::string& fileName) {
+bool Server::setCertFileName(const std::string &fileName) {
   if (this->isOpen()) {
     return false;
   }
@@ -463,7 +462,7 @@ bool Server::setCertFileName(const std::string& fileName) {
   return true;
 }
 
-const std::string& Server::getCertFileName() { return this->certFileName; }
+const std::string &Server::getCertFileName() { return this->certFileName; }
 
 }  // namespace tls
 }  // namespace cpp

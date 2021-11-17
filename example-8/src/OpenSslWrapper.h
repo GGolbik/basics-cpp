@@ -3,8 +3,10 @@
 #include <openssl/ssl.h>
 
 #include <cstdio>
+#include <cstdlib>
 #include <memory>
 #include <string>
+#include <functional>
 
 namespace ggolbik {
 namespace cpp {
@@ -28,7 +30,45 @@ struct TlsDeleterFunctor {
   }
 };
 
+struct TlsX509CertDeleterFunctor
+{
+  void operator()(::X509* p) const
+  {
+    if(p != nullptr)
+    {
+      ::X509_free(p);
+    }
+  }
+};
+
+struct TlsKeyDeleterFunctor
+{
+  void operator()(::EVP_PKEY* p) const
+  {
+    if(p != nullptr)
+    {
+      ::EVP_PKEY_free(p);
+    }
+  }
+};
+
+struct TlsMessageDigestContextDeleterFunctor
+{
+  void operator()(::EVP_MD_CTX* p) const
+  {
+    if(p != nullptr)
+    {
+      ::EVP_MD_CTX_free(p);
+    }
+  }
+};
+
 class OpenSslWrapper {
+ public:
+  using TlsX509Cert = std::unique_ptr<::X509, TlsX509CertDeleterFunctor>;
+  using TlsKey = std::unique_ptr<::EVP_PKEY, TlsKeyDeleterFunctor>;
+  using TlsMessageDigestContext = std::unique_ptr<::EVP_MD_CTX, TlsMessageDigestContextDeleterFunctor>;
+
  public:
   /**
    * @brief Using custom deleter with unique_ptr
@@ -66,11 +106,23 @@ class OpenSslWrapper {
   static ::SSL *connectTls(::SSL_CTX *ctx, int socket);
 
   static void displayCerts(::SSL *ssl);
+  static void displayCert(const TlsX509Cert& cert);
   static void displayCertsSimple(::SSL *ssl);
 
   static bool createSelfSignedCert(const std::string &keyFileName,
                                    const std::string &certFileName,
                                    const std::string &password);
+
+  static bool readKeyFile(const std::string& fileName, TlsKey& key, const std::string& password);
+
+  static bool readCertFile(const std::string& fileName, TlsX509Cert& cert, const std::string& password);
+
+  static bool readCertKey(const std::string& fileName, TlsKey& key);
+  static bool readCertKey(const TlsX509Cert& cert, TlsKey& key);
+
+  static bool signData(TlsKey& key, const std::string& msg, std::string& signature);
+
+  static bool verifySignedData(TlsKey& key, const std::string& msg, const std::string& signature, const std::string& algorithm);
 };
 }  // namespace tls
 }  // namespace cpp

@@ -18,6 +18,8 @@
   - A simple C++ project which uses sockets with TLS (OpenSSL), provides encoding/decoding and builds with cross toolchain.
 - [Example 9](example-9)
   - A simple template to build a C++ static library project.
+- [Example 10](example-10)
+  - A simple template to build a C++ shared library project.
 
 # Table of contents
 

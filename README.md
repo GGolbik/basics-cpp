@@ -1,7 +1,7 @@
 # Basics C++
 
 - [Example 1](example-1)
-  - A simple template to build a C++ project.
+  - A simple template to build a C++ binary project.
 - [Example 2](example-2)
   - A simple template to build a C++ project, run tests and get code coverage report.
 - [Example 3](example-3)
@@ -16,6 +16,8 @@
   - A simple template to build a C++ project with cross toolchain.
 - [Example 8](example-8)
   - A simple C++ project which uses sockets with TLS (OpenSSL), provides encoding/decoding and builds with cross toolchain.
+- [Example 9](example-9)
+  - A simple template to build a C++ static library project.
 
 # Table of contents
 
@@ -372,4 +374,4 @@ You can install the [OpenSSL](https://www.openssl.org/) for development with the
 sudo apt install openssl libssl-dev
 ~~~
 
-You can also build OpenSSL from [source](github.com/openssl/openssl) (see [example 8](example-8)).
+You can also build OpenSSL from [source](https://github.com/openssl/openssl) (see [example 8](example-8)).

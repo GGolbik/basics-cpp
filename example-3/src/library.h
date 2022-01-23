@@ -45,7 +45,7 @@ public: // Constructor/Destructor/Operator
   /**
    * Copy assignment operator
    */
-  Example &operator=(Example &);
+  Example &operator=(const Example &);
   /**
    * Destructor
    */

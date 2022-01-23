@@ -48,7 +48,7 @@ class Server {
   /**
    * Copy assignment operator
    */
-  Server &operator=(Server &) = delete;
+  Server &operator=(const Server &) = delete;
   /**
    * Destructor
    */

@@ -10,7 +10,7 @@ namespace library
 
 Example::Example(int field) : field{field} {}
 
-Example &Example::operator=(Example & obj){
+Example &Example::operator=(const Example & obj){
   this->field = obj.field;
   return *this;
 }

@@ -23,4 +23,4 @@ set(CMAKE_CXX_COMPILER arm-linux-gnueabihf-g++)
 #set(CMAKE_CXX_FLAGS_RELEASE <cpp_flags_for_release>)
 #set(CMAKE_EXE_LINKER_FLAGS <linker_flags>)
 
-set(OPENSSL_ROOT_DIR "${PROJECT_SOURCE_DIR}/build/openssl-linux-armhf")
+set(OPENSSL_ROOT_DIR "${PROJECT_SOURCE_DIR}/build/openssl-linux-armhf/target/usr/local")

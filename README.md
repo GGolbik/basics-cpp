@@ -20,6 +20,8 @@
   - A simple template to build a C++ static library project.
 - [Example 10](example-10)
   - A simple template to build a C++ shared library project.
+- [Example 11](example-11)
+  - A simple C++ project which make use of dlopen.
 
 # Table of contents
 

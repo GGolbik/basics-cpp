@@ -32,10 +32,36 @@ docker exec \
   --interactive \
   --tty \
   ${CONTAINER_ID} bash /app/build.sh
+
 docker exec \
   --interactive \
   --tty \
-  ${CONTAINER_ID} find /app/scripts -name "*.sh" -exec {} \;
+  ${CONTAINER_ID} bash /app/scripts/build-linux-amd64.sh
+
+docker exec \
+  --interactive \
+  --tty \
+  ${CONTAINER_ID} bash /app/scripts/build-linux-arm64.sh
+
+docker exec \
+  --interactive \
+  --tty \
+  ${CONTAINER_ID} bash /app/scripts/build-linux-armel.sh
+
+docker exec \
+  --interactive \
+  --tty \
+  ${CONTAINER_ID} bash /app/scripts/build-linux-armhf.sh
+
+docker exec \
+  --interactive \
+  --tty \
+  ${CONTAINER_ID} bash /app/scripts/build-windows-x86_64.sh
+
+docker exec \
+  --interactive \
+  --tty \
+  ${CONTAINER_ID} bash /app/scripts/build-windows-x86.sh
 
 docker exec \
   --interactive \

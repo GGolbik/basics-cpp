@@ -24,4 +24,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static")
 #set(CMAKE_CXX_FLAGS_RELEASE <cpp_flags_for_release>)
 #set(CMAKE_EXE_LINKER_FLAGS <linker_flags>)
 
-set(OPENSSL_ROOT_DIR "${PROJECT_SOURCE_DIR}/build/openssl-windows-x86")
+# Before 1.1.1f use 
+#set(OPENSSL_ROOT_DIR "${PROJECT_SOURCE_DIR}/build/openssl-windows-x86/target/usr/local")
+# instead of
+set(OPENSSL_ROOT_DIR "${PROJECT_SOURCE_DIR}/build/openssl-windows-x86/target/Program Files (x86)/OpenSSL")

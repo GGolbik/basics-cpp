@@ -10,7 +10,7 @@ if [[ ! -d ${OPENSSL_DIR} ]]; then
   # There is a GitHub mirror of the repository at github.com/openssl/openssl, which is updated automatically from the former on every commit.
   # https://www.openssl.org/source/
   #git clone git://git.openssl.org/openssl.git -b openssl-3.0.0 ${OPENSSL_DIR}
-  git clone git://git.openssl.org/openssl.git -b OpenSSL_1_1_1d ${OPENSSL_DIR}
+  git clone git://git.openssl.org/openssl.git -b OpenSSL_1_1_1m ${OPENSSL_DIR}
 fi
 
 # Prints available targets

@@ -24,7 +24,7 @@ https://docs.sonarqube.org/latest/analysis/analysis-parameters/)).
 
 # Install Project
 
-Execute the `build.sh` script on Linux. There is no support for Windows yet.
+Execute the `install.sh` script on Linux. There is no support for Windows yet.
 
 # Build and Install with Docker
 

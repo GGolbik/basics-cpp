@@ -1,0 +1,32 @@
+{
+  "version": "0.2.0",
+  "configurations": [{
+      "name": "Debug",
+      "type": "cppdbg",
+      "request": "launch",
+      "windows": {
+        "program": "${workspaceFolder}/build/project_cpp_binary.exe",
+        "miDebuggerPath": "C:/Program Files/mingw-w64/x86_64-8.1.0-posix-seh-rt_v6-rev0/mingw64/bin/gdb.exe",
+      },
+      "linux": {
+        "program": "${workspaceFolder}/build/target/usr/local/bin/project_cpp_binary",
+        "miDebuggerPath": "gdb",
+      },
+      "args": [
+        "${workspaceFolder}/build/libs/module1/libproject_cpp_shared_1.so",
+        "${workspaceFolder}/build/libs/module2/libproject_cpp_shared_2.so"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [{
+        "description": "Enable pretty-printing for gdb",
+        "text": "-enable-pretty-printing",
+        "ignoreFailures": true
+      }],
+      "preLaunchTask": "CMake Debug"
+    }
+  ]
+}

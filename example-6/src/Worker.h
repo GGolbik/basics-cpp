@@ -49,7 +49,7 @@ class Worker {
   /**
    * Copy assignment operator
    */
-  Worker &operator=(Worker &) = delete;
+  Worker &operator=(const Worker &) = delete;
   /**
    * Destructor
    */

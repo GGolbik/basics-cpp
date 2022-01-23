@@ -12,6 +12,7 @@ namespace ggolbik {
 namespace cpp {
 namespace tls {
 
+// A stateless functor
 struct TlsContextDeleterFunctor {
   void operator()(::SSL_CTX *p) const {
     if (p != nullptr) {
@@ -20,6 +21,7 @@ struct TlsContextDeleterFunctor {
   }
 };
 
+// A stateless functor
 struct TlsDeleterFunctor {
   void operator()(::SSL *p) const {
     if (p != nullptr) {
@@ -30,6 +32,7 @@ struct TlsDeleterFunctor {
   }
 };
 
+// A stateless functor
 struct TlsX509CertDeleterFunctor
 {
   void operator()(::X509* p) const
@@ -41,6 +44,7 @@ struct TlsX509CertDeleterFunctor
   }
 };
 
+// A stateless functor
 struct TlsKeyDeleterFunctor
 {
   void operator()(::EVP_PKEY* p) const
@@ -52,6 +56,7 @@ struct TlsKeyDeleterFunctor
   }
 };
 
+// A stateless functor
 struct TlsMessageDigestContextDeleterFunctor
 {
   void operator()(::EVP_MD_CTX* p) const

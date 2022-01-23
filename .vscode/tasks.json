@@ -198,5 +198,17 @@
         "command": "${workspaceFolder}/example-8/build.sh"
       }
     },
+    {
+      "label": "Example 11 - CMake Debug",
+      "type": "shell",
+      "windows": {
+        "command": "cmd",
+        "args": ["/c", "${workspaceFolder}/example-11/build.bat", "Debug"]
+      },
+      "linux":{
+        "command": "${workspaceFolder}/example-11/build.sh",
+        "args": ["Debug"],  
+      }
+    },
   ]
 }

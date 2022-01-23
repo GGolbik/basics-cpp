@@ -258,5 +258,29 @@
       }],
       "preLaunchTask": "Example 8 - CMake Debug"
     },
+    {
+      "name": "Example 11 - Debug",
+      "type": "cppdbg",
+      "request": "launch",
+      "linux": {
+        "program": "${workspaceFolder}/example-11/build/project_cpp_binary",
+        "miDebuggerPath": "gdb",
+      },
+      "args": [
+        "${workspaceFolder}/example-11/build/libs/module1/libproject_cpp_shared_1.so",
+        "${workspaceFolder}/example-11/build/libs/module2/libproject_cpp_shared_2.so"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [{
+        "description": "Enable pretty-printing for gdb",
+        "text": "-enable-pretty-printing",
+        "ignoreFailures": true
+      }],
+      "preLaunchTask": "Example 11 - CMake Debug"
+    },
   ]
 }

@@ -24,4 +24,4 @@ set(CMAKE_CXX_COMPILER x86_64-linux-gnu-g++)
 #set(CMAKE_CXX_FLAGS_RELEASE <cpp_flags_for_release>)
 #set(CMAKE_EXE_LINKER_FLAGS <linker_flags>)
 
-set(OPENSSL_ROOT_DIR "${PROJECT_SOURCE_DIR}/build/openssl-linux-amd64")
+set(OPENSSL_ROOT_DIR "${PROJECT_SOURCE_DIR}/build/openssl-linux-amd64/target/usr/local")

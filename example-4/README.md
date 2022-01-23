@@ -19,7 +19,7 @@ You can set whether cppcheck will decline the further build if there are finding
 
 # Install Project
 
-Execute the `build.sh` script on Linux. There is no support for Windows yet.
+Execute the `install.sh` script on Linux. There is no support for Windows yet.
 
 # Build and Install with Docker
 

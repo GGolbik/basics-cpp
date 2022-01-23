@@ -19,7 +19,7 @@ Execute the `build.bat` script on Windows or `build.sh` script on Linux.
 
 # Install Project
 
-Execute the `build.sh` script on Linux. There is no support for Windows yet.
+Execute the `install.sh` script on Linux. There is no support for Windows yet.
 
 # Build and Install with Docker
 
@@ -273,6 +273,10 @@ In the `libs` directory are OpenSSL build scripts for each target:
 - `openssl-linux-armhf.sh`
 - `openssl-windows-x86_64.sh`
 - `openssl-windows-x86.sh`
+
+> There is a bug in version `1.1.1d` and `1.1.1e` which prevents to use `make` with `DESTDIR`. Read the comments in the build scripts for a solution.
+
+> The target directory changed in the windows builds from `/target/usr/local` to `Program Files` since version `1.1.1f`. Read the comments in the windows `*.cmake` files.
 
 ## Windows
 

@@ -331,7 +331,7 @@ bool Algorithm::encodeBase64(const std::string& decodedString,
 
   // create BIO that holds the result
   ::BIO* sink = ::BIO_new(
-      BIO_s_mem());  // BIO_new_mem_buf(encodedBase64String.CStr(), -1);
+      ::BIO_s_mem());  // BIO_new_mem_buf(encodedBase64String.CStr(), -1);
 
   if (!sink) {
     std::cerr << "Failed to create BIO memory buffer for data." << std::endl;

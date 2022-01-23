@@ -40,7 +40,7 @@ class Client {
   /**
    * Copy assignment operator
    */
-  Client &operator=(Client &) = delete;
+  Client &operator=(const Client &) = delete;
   /**
    * Destructor
    */
